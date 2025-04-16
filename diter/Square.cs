@@ -1,6 +1,6 @@
 namespace diter;
 
-public class Square(Point start, Point end, Color colorRect) : Rectungle(start, end, colorRect)
+public class Square(Point start, Color colorRect) : Rect(start, colorRect)
 {
     public override void Draw(Graphics g)
     {

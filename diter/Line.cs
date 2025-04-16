@@ -2,6 +2,7 @@ namespace diter;
 
 public class Line(Point start, Point end, Color color = default) : Shape
 {
+    private Point _start = start;
     private Point _end = end;
     private List<Point>? _pixelsList = null;
     private Color _color = color == default ? Color.Black : color;
@@ -22,18 +23,18 @@ public class Line(Point start, Point end, Color color = default) : Shape
         this._end = newEnd;
     }
 
-    public override void CompleteDraw()
+    public override void CompleteEdit()
     {
         this._pixelsList = GetBrezenhamPixels();
     }
     
     private List<Point> GetBrezenhamPixels()
     {
-        var start1 = new Point(start.X, start.Y); 
-        var dx = Math.Abs(this._end.X - start.X); 
-        var dy = Math.Abs(this._end.Y - start.Y); 
-        var sx = start.X < this._end.X ? 1 : -1; 
-        var sy = start.Y < this._end.Y ? 1 : -1; 
+        var start1 = new Point(this._start.X, this._start.Y); 
+        var dx = Math.Abs(this._end.X - this._start.X); 
+        var dy = Math.Abs(this._end.Y - this._start.Y); 
+        var sx = this._start.X < this._end.X ? 1 : -1; 
+        var sy = this._start.Y < this._end.Y ? 1 : -1; 
         var error = dx - dy;
         
         var pixels = new List<Point>(); 
@@ -57,5 +58,19 @@ public class Line(Point start, Point end, Color color = default) : Shape
             }
         }
         return pixels;
+    }
+
+    public override Rectangle GetEditRectBorders() // нужно избавиться
+    {
+        return Rectangle.Empty;
+    }
+
+    public override void StartEdit()
+    {
+    }
+
+    public override bool IsEdit() // избавиться
+    {
+        return false;
     }
 }

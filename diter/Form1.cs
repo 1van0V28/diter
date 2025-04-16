@@ -21,9 +21,10 @@ public partial class Form1 : Form
     private void DrawPanel_MouseDown(object sender, MouseEventArgs e)
     {
         var startPixel = new Point(e.Location.X, e.Location.Y);
-        var line = new Line(startPixel, startPixel, Color.Crimson);
+        // var line = new Line(startPixel, startPixel, Color.Crimson);
+        var rect = new Rectungle(startPixel, startPixel, Color.Crimson);
         _isMouseDawn = true;
-        _shapesList.Add(line);
+        _shapesList.Add(rect); // изменено для теста
     }
 
     private void DrawPanel_MouseMove(object sender, MouseEventArgs e)

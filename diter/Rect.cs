@@ -1,51 +1,41 @@
+using System.Drawing.Drawing2D;
+
 namespace diter;
 
-public class Rect(Point start, Color colorRect): Shape
+public class Rect(Color color): Shape
 {
-    private bool _isEdit = true;
-    private EditRect _editRect = new EditRect(start);
-    protected Point Start = start;
-    protected Point End = start;
-    protected Color ColorRect = colorRect;
+    private Point _topLeft;
+    private Point _topRight;
+    private Point _bottomLeft;
+    private Point _bottomRight;
+    private Line[] _borderLinesList = new Line[4];
+    private Color _color = color;
     
     public override void Draw(Graphics g)
     {
-        if (_isEdit)
+        this.SetBorderLines();
+        foreach (var line in this._borderLinesList)
         {
-            _editRect.Draw(g);
+            line.Draw(g);
         }
-        
-        var topLeftX = Math.Min(this.Start.X, this.End.X);
-        var topLeftY = Math.Min(this.Start.Y, this.End.Y);
-        var width = Math.Abs(this.End.X - this.Start.X) + 1;
-        var height = Math.Abs(this.End.Y - this.Start.Y) + 1;
-        
-        g.FillRectangle(new SolidBrush(this.ColorRect), topLeftX, topLeftY, width, height);
+    }
+    
+    public override void SetPoints(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight)
+    {
+        this._topLeft = topLeft;
+        this._topRight = topRight;
+        this._bottomLeft = bottomLeft;
+        this._bottomRight = bottomRight;
     }
 
-    public override void ChangeEndCoors(Point newEnd)
+    private void SetBorderLines()
     {
-        _editRect.SetBorders(this.Start, this.End);
-        this.End = newEnd;
-    }
+        var newBordersList = new Line[4];
+        newBordersList[0] = new Line(this._topLeft, this._topRight, this._color);
+        newBordersList[1] = new Line(this._topRight, this._bottomRight, this._color);
+        newBordersList[2] = new Line(this._bottomRight, this._bottomLeft, this._color);
+        newBordersList[3] = new Line(this._bottomLeft, this._topLeft, this._color);
 
-    public override void CompleteEdit()
-    {
-        _isEdit = false;
-    }
-
-    public override Rectangle GetEditRectBorders()
-    {
-        return _editRect.GetBorders();
-    }
-
-    public override void StartEdit()
-    {
-        _isEdit = true;
-    }
-
-    public override bool IsEdit()
-    {
-        return _isEdit;
+        this._borderLinesList = newBordersList;
     }
 }

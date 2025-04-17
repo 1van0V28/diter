@@ -1,34 +1,27 @@
 namespace diter;
 
-public class Line(Point start, Point end, Color color = default) : Shape
+public class Line(Point start, Point end, Color color) : Shape // Добавить линию для отрисовки и линию для редактирования
 {
     private Point _start = start;
     private Point _end = end;
     private List<Point>? _pixelsList = null;
-    private Color _color = color == default ? Color.Black : color;
+    private Color _color = color;
 
     public override void Draw(Graphics g)
     {
-         var color = _pixelsList == null ? Color.Gray : _color;
-         var pixelsList = _pixelsList ?? GetBrezenhamPixels();
-         
-         foreach (var pixel in pixelsList)
-         {
-             g.FillRectangle(new SolidBrush(color), pixel.X, pixel.Y, 1, 1);
-         }
-    }
-    
-    public override void ChangeEndCoors(Point newEnd) 
-    {
-        this._end = newEnd;
+        this.SetBrezenhamPixels();
+        foreach (var pixel in this._pixelsList)
+        {
+            g.FillRectangle(new SolidBrush(this._color), pixel.X, pixel.Y, 1, 1);
+        }
     }
 
-    public override void CompleteEdit()
+    public override void SetPoints(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight)
     {
-        this._pixelsList = GetBrezenhamPixels();
+        throw new NotImplementedException();
     }
     
-    private List<Point> GetBrezenhamPixels()
+    private void SetBrezenhamPixels()
     {
         var start1 = new Point(this._start.X, this._start.Y); 
         var dx = Math.Abs(this._end.X - this._start.X); 
@@ -57,20 +50,6 @@ public class Line(Point start, Point end, Color color = default) : Shape
                 start1.Y += sy;
             }
         }
-        return pixels;
-    }
-
-    public override Rectangle GetEditRectBorders() // нужно избавиться
-    {
-        return Rectangle.Empty;
-    }
-
-    public override void StartEdit()
-    {
-    }
-
-    public override bool IsEdit() // избавиться
-    {
-        return false;
+        this._pixelsList = pixels;
     }
 }

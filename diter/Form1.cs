@@ -2,9 +2,10 @@ namespace diter;
 
 public partial class Form1 : Form
 {
-    private bool _isMouseDawn = false;
-    private Shape? _editShape = null;
-    private List<Shape> _shapesList = new List<Shape>();
+    private Frame _editFrame = null;
+    private List<Frame> _framesList = new List<Frame>();
+    private bool _isMouseDown = false;
+    
     public Form1()
     {
         InitializeComponent();
@@ -13,56 +14,33 @@ public partial class Form1 : Form
 
     private void DrawPanel_Paint(object sender, PaintEventArgs e)
     {
-        foreach (var shape in this._shapesList)
+        foreach (var editRect in this._framesList)
         {
-            shape.Draw(e.Graphics);
+            editRect.Draw(e.Graphics);
         }
     }
 
     private void DrawPanel_MouseDown(object sender, MouseEventArgs e)
     {
-        foreach (var shape in _shapesList)
-        {
-            if (shape.GetEditRectBorders().Contains(e.Location))
-            {
-                _editShape = shape;
-                _isMouseDawn = true;
-                shape.StartEdit();
-                SplitContainer1.Panel2.Invalidate();
-                return;
-            }
-        }
-        
         var startPixel = new Point(e.Location.X, e.Location.Y);
-        // var line = new Line(startPixel, startPixel, Color.Crimson);
-        var rect = new Rect(startPixel, Color.Crimson);
-        _editShape = rect;
-        // var square = new Square(startPixel, startPixel, Color.Crimson);
-        _isMouseDawn = true;
-        _shapesList.Add(rect); // изменено для теста
+        var newShape = new Rect(Color.Crimson);
+        var newEditRect = new Frame(startPixel, newShape);
+        _framesList.Add(newEditRect);
+        this._isMouseDown = true;
     }
 
     private void DrawPanel_MouseMove(object sender, MouseEventArgs e)
     {
-        if (_isMouseDawn)
+        if (this._isMouseDown)
         {
-            if (_editShape != null)
-            {
-                var newEnd = new Point(e.Location.X, e.Location.Y);
-                _editShape.ChangeEndCoors(newEnd);
-                SplitContainer1.Panel2.Invalidate();
-            }
+            var editRect = this._framesList.Last();
+            editRect.EditFrame(new Point(e.Location.X, e.Location.Y));
+            SplitContainer1.Panel2.Invalidate();
         }
     }
 
     private void DrawPanel_MouseUp(object sender, MouseEventArgs e)
     {
-        if (_editShape != null)
-        {
-            _editShape.CompleteEdit();
-            _editShape = null;
-            _isMouseDawn = false; 
-            SplitContainer1.Panel2.Invalidate();
-        }
+        this._isMouseDown = false;
     }
 }

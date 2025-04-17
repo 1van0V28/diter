@@ -23,7 +23,7 @@ public partial class Form1 : Form
     private void DrawPanel_MouseDown(object sender, MouseEventArgs e)
     {
         var startPixel = new Point(e.Location.X, e.Location.Y);
-        var newShape = new Triangle(Color.Crimson);
+        var newShape = new Pentagon(Color.Crimson);
         var newEditRect = new Frame(startPixel, newShape);
         _framesList.Add(newEditRect);
         this._isMouseDown = true;

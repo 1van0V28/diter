@@ -2,7 +2,7 @@ namespace diter;
 
 public partial class Form1 : Form
 {
-    private Frame _editFrame = null;
+    private Frame? _editFrame = null;
     private List<Frame> _framesList = new List<Frame>();
     private bool _isMouseDown = false;
     
@@ -22,25 +22,39 @@ public partial class Form1 : Form
 
     private void DrawPanel_MouseDown(object sender, MouseEventArgs e)
     {
-        var startPixel = new Point(e.Location.X, e.Location.Y);
+        foreach (var frame in _framesList)
+        {
+            if (frame.GetIsMouseDown(e.Location))
+            {
+                this._editFrame = frame;
+                this._editFrame.StartEdit();
+                this._isMouseDown = true;
+                return;
+            }
+        }
         var newShape = new Pentagon(Color.Crimson);
-        var newEditRect = new Frame(startPixel, newShape);
+        var newEditRect = new Frame(e.Location, newShape);
         _framesList.Add(newEditRect);
+        this._editFrame = newEditRect;
         this._isMouseDown = true;
     }
 
     private void DrawPanel_MouseMove(object sender, MouseEventArgs e)
     {
-        if (this._isMouseDown)
+        if (this._isMouseDown && this._editFrame != null)
         {
-            var editRect = this._framesList.Last();
-            editRect.EditFrame(new Point(e.Location.X, e.Location.Y));
+            this._editFrame.EditFrame(e.Location);
             SplitContainer1.Panel2.Invalidate();
         }
     }
 
     private void DrawPanel_MouseUp(object sender, MouseEventArgs e)
     {
+        if (this._editFrame != null)
+        {
+            this._editFrame.StopEdit();
+            this._editFrame = null;
+        }
         this._isMouseDown = false;
     }
 }

@@ -4,7 +4,9 @@ namespace diter;
 
 public class Frame(Point start, Shape shape)
 {
+    private bool _isEdit = false;
     private Shape _shape = shape;
+    private Point? _dragStart;
     private Point _topLeft;
     private Point _topRight;
     private Point _bottomLeft;
@@ -13,9 +15,12 @@ public class Frame(Point start, Shape shape)
     
     public void Draw(Graphics g)
     {
-        foreach (var line in this._borderLinesList)
+        if (_isEdit)
         {
-            line.Draw(g);
+            foreach (var line in this._borderLinesList)
+            { 
+                line.Draw(g);
+            }
         }
         
         _shape.Draw(g);
@@ -23,12 +28,40 @@ public class Frame(Point start, Shape shape)
 
     public void EditFrame(Point newEnd)
     {
-        this.SetBorderPoints(newEnd);
+        if (_isEdit)
+        {
+            DragFrame(newEnd);
+        }
+        else
+        {
+            this.SetBorderPoints(newEnd);
+        }
         this.SetBorderLines();
         this._shape.SetPoints(this._topLeft, this._topRight, this._bottomLeft, this._bottomRight);
     }
 
-    public void SetBorderPoints(Point newEnd)
+    private void DragFrame(Point newEnd)
+    {
+        if (_dragStart == null)
+        {
+            _dragStart = newEnd;
+        }
+
+        var deltaX = newEnd.X - this._dragStart.Value.X;
+        var deltaY = newEnd.Y - this._dragStart.Value.Y;
+        this._dragStart = newEnd;
+
+        this._topLeft.X += deltaX;
+        this._topLeft.Y += deltaY;
+        this._topRight.X += deltaX;
+        this._topRight.Y += deltaY;
+        this._bottomRight.X += deltaX;
+        this._bottomRight.Y += deltaY;
+        this._bottomLeft.X += deltaX;
+        this._bottomLeft.Y += deltaY;
+    }
+
+    private void SetBorderPoints(Point newEnd)
     {
         var topLeftX = Math.Min(start.X, newEnd.X);
         var topLeftY = Math.Min(start.Y, newEnd.Y);
@@ -50,5 +83,24 @@ public class Frame(Point start, Shape shape)
         newBordersList[3] = new Line(this._bottomLeft, this._topLeft, Color.Black);
 
         this._borderLinesList = newBordersList;
+    }
+
+    public bool GetIsMouseDown(Point mousePos)
+    {
+        var isMouseDownX = this._topLeft.X < mousePos.X && mousePos.X < this._topRight.X;
+        var isMouseDownY = this._topLeft.Y < mousePos.Y && mousePos.Y < this._bottomLeft.Y;
+
+        return (isMouseDownX && isMouseDownY);
+    }
+
+    public void StartEdit()
+    {
+        this._isEdit = true;
+    }
+
+    public void StopEdit()
+    {
+        this._isEdit = false;
+        this._dragStart = null;
     }
 }

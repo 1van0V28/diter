@@ -1,80 +1,54 @@
-using System.Drawing.Drawing2D;
-
 namespace diter;
 
 public class Frame(Point start, Shape shape)
 {
-    private bool _isDrag = false;
-    private Shape _shape = shape;
+    private bool _isDrag;
     private int? _editMarkerIndex;
     private Point? _dragStart;
     private Point _topLeft;
     private Point _topRight;
     private Point _bottomLeft;
     private Point _bottomRight;
-    private EditLine[] _borderLinesList = new EditLine[4];
+    private readonly EditLine[] _borderLinesList = new EditLine[4];
     
     public void Draw(Graphics g)
     {
-        if (this._isDrag || this._editMarkerIndex != null)
+        if (_isDrag || _editMarkerIndex != null)
         {
-            foreach (var line in this._borderLinesList)
+            foreach (var line in _borderLinesList)
             { 
                 line.Draw(g);
             }
         }
         
-        _shape.Draw(g);
-    }
-
-    public void EditFrame(Point newEnd)
-    {
-        if (this._isDrag) 
-        {
-            DragFrame(newEnd);
-        } else if (this._editMarkerIndex != null)
-        {
-           ResizeFrame(newEnd); 
-        }
-        else
-        {
-            this.SetBorderPoints(newEnd);
-        }
-        this.SetBorderLines();
-        this._shape.SetPoints(this._topLeft, this._topRight, this._bottomLeft, this._bottomRight);
+        shape.Draw(g);
     }
 
     private void DragFrame(Point newEnd)
     {
-        if (_dragStart == null)
-        {
-            _dragStart = newEnd;
-        }
+        _dragStart ??= newEnd;
 
-        var deltaX = newEnd.X - this._dragStart.Value.X;
-        var deltaY = newEnd.Y - this._dragStart.Value.Y;
-        this._dragStart = newEnd;
+        var deltaX = newEnd.X - _dragStart.Value.X;
+        var deltaY = newEnd.Y - _dragStart.Value.Y;
+        _dragStart = newEnd;
 
-        this._topLeft.X += deltaX;
-        this._topLeft.Y += deltaY;
-        this._topRight.X += deltaX;
-        this._topRight.Y += deltaY;
-        this._bottomRight.X += deltaX;
-        this._bottomRight.Y += deltaY;
-        this._bottomLeft.X += deltaX;
-        this._bottomLeft.Y += deltaY;
+        _topLeft.X += deltaX;
+        _topLeft.Y += deltaY;
+        _topRight.X += deltaX;
+        _topRight.Y += deltaY;
+        _bottomRight.X += deltaX;
+        _bottomRight.Y += deltaY;
+        _bottomLeft.X += deltaX;
+        _bottomLeft.Y += deltaY;
     }
 
     private void ResizeFrame(Point newEnd)
     {
-        if (_dragStart == null)
-        {
-            _dragStart = newEnd;
-        }
+        _dragStart ??= newEnd;
 
-        if (this._editMarkerIndex != null)
+        if (_editMarkerIndex != null)
         {
-            switch (this._editMarkerIndex)
+            switch (_editMarkerIndex)
             {
                 case 0: ResizeTop(newEnd);
                     return;
@@ -90,123 +64,139 @@ public class Frame(Point start, Shape shape)
 
     private void ResizeTop(Point newEnd)
     {
-        if (this._dragStart != null)
+        if (_dragStart != null)
         {
-            var deltaY = newEnd.Y - this._dragStart.Value.Y;
-            this._dragStart = newEnd;
+            var deltaY = newEnd.Y - _dragStart.Value.Y;
+            _dragStart = newEnd;
 
-            if (this._topLeft.Y + deltaY + 1 < this._bottomLeft.Y)
+            if (_topLeft.Y + deltaY + 1 < _bottomLeft.Y)
             {
-                this._topLeft.Y += deltaY; 
-                this._topRight.Y += deltaY;
+                _topLeft.Y += deltaY; 
+                _topRight.Y += deltaY;
             }
         }
     }
     
     private void ResizeRight(Point newEnd)
     {
-        if (this._dragStart != null)
+        if (_dragStart != null)
         {
-            var deltaX = newEnd.X - this._dragStart.Value.X;
-            this._dragStart = newEnd;
+            var deltaX = newEnd.X - _dragStart.Value.X;
+            _dragStart = newEnd;
 
-            if (this._topRight.X + deltaX - 1 > this._topLeft.X)
+            if (_topRight.X + deltaX - 1 > _topLeft.X)
             {
-                this._topRight.X += deltaX;
-                this._bottomRight.X += deltaX;
+                _topRight.X += deltaX;
+                _bottomRight.X += deltaX;
             }
         }
     }
     
     private void ResizeBottom(Point newEnd)
     {
-        if (this._dragStart != null)
+        if (_dragStart != null)
         {
-            var deltaY = newEnd.Y - this._dragStart.Value.Y;
-            this._dragStart = newEnd;
+            var deltaY = newEnd.Y - _dragStart.Value.Y;
+            _dragStart = newEnd;
 
-            if (this._bottomLeft.Y + deltaY - 1 > this._topLeft.Y)
+            if (_bottomLeft.Y + deltaY - 1 > _topLeft.Y)
             {
-                this._bottomLeft.Y += deltaY;
-                this._bottomRight.Y += deltaY;
+                _bottomLeft.Y += deltaY;
+                _bottomRight.Y += deltaY;
             }
         }
     }
     
     private void ResizeLeft(Point newEnd)
     {
-        if (this._dragStart != null)
+        if (_dragStart != null)
         {
-            var deltaX = newEnd.X - this._dragStart.Value.X;
-            this._dragStart = newEnd;
+            var deltaX = newEnd.X - _dragStart.Value.X;
+            _dragStart = newEnd;
 
-            if (this._topLeft.X + deltaX + 1 < this._topRight.X)
+            if (_topLeft.X + deltaX + 1 < _topRight.X)
             {
-                this._topLeft.X += deltaX;
-                this._bottomLeft.X += deltaX;
+                _topLeft.X += deltaX;
+                _bottomLeft.X += deltaX;
             }
         }
     }
 
-    private void SetBorderPoints(Point newEnd)
+    private void SetCornersPoints(Point newEnd)
     {
         var topLeftX = Math.Min(start.X, newEnd.X);
         var topLeftY = Math.Min(start.Y, newEnd.Y);
         var bottomRightX = Math.Max(start.X, newEnd.X);
         var bottomRightY = Math.Max(start.Y, newEnd.Y);
 
-        this._topLeft = new Point(topLeftX, topLeftY);
-        this._topRight = new Point(bottomRightX, topLeftY);
-        this._bottomLeft = new Point(topLeftX, bottomRightY);
-        this._bottomRight = new Point(bottomRightX, bottomRightY);
+        _topLeft = new Point(topLeftX, topLeftY);
+        _topRight = new Point(bottomRightX, topLeftY);
+        _bottomLeft = new Point(topLeftX, bottomRightY);
+        _bottomRight = new Point(bottomRightX, bottomRightY);
     }
 
-    private void SetBorderLines()
+    private void SetBordersLines()
     {
-        var newBordersList = new EditLine[4];
-        newBordersList[0] = new EditLine(this._topLeft, this._topRight, Color.Black);
-        newBordersList[1] = new EditLine(this._topRight, this._bottomRight, Color.Black);
-        newBordersList[2] = new EditLine(this._bottomRight, this._bottomLeft, Color.Black);
-        newBordersList[3] = new EditLine(this._bottomLeft, this._topLeft, Color.Black);
+        _borderLinesList[0] = new EditLine(_topLeft, _topRight, Color.Black);
+        _borderLinesList[1] = new EditLine(_topRight, _bottomRight, Color.Black);
+        _borderLinesList[2] = new EditLine(_bottomRight, _bottomLeft, Color.Black);
+        _borderLinesList[3] = new EditLine(_bottomLeft, _topLeft, Color.Black);
+    }
+    
+    public void StartDrag()
+    {
+        _isDrag = true;
+    }
 
-        this._borderLinesList = newBordersList;
+    public void StartResize(int editMarkerIndex)
+    {
+        _editMarkerIndex = editMarkerIndex;
+    }
+
+    public void StopEdit()
+    {
+        _isDrag = false;
+        _editMarkerIndex = null;
+        _dragStart = null;
+        shape.StopEdit();
+    }
+    
+    public void EditFrame(Point newEnd)
+    {
+        shape.StartEdit();
+        if (_isDrag) 
+        {
+            DragFrame(newEnd);
+        } else if (_editMarkerIndex != null)
+        {
+            ResizeFrame(newEnd); 
+        }
+        else
+        {
+            SetCornersPoints(newEnd);
+        }
+        SetBordersLines();
+        shape.SetCornersPoints(_topLeft, _topRight, _bottomLeft, _bottomRight);
     }
 
     public bool GetIsMouseDown(Point mousePos)
     {
-        var isMouseDownX = this._topLeft.X < mousePos.X && mousePos.X < this._topRight.X;
-        var isMouseDownY = this._topLeft.Y < mousePos.Y && mousePos.Y < this._bottomLeft.Y;
+        var isMouseDownX = _topLeft.X < mousePos.X && mousePos.X < _topRight.X;
+        var isMouseDownY = _topLeft.Y < mousePos.Y && mousePos.Y < _bottomLeft.Y;
 
         return (isMouseDownX && isMouseDownY);
     }
 
     public int GetMouseDownMarkerIndex(Point mousePos)
     {
-        for (var i = 0; i < this._borderLinesList.Length; i++)
+        for (var i = 0; i < _borderLinesList.Length; i++)
         {
-            if (this._borderLinesList[i].GetIsMouseDownMarker(mousePos))
+            if (_borderLinesList[i].GetIsMouseDownMarker(mousePos))
             {
                 return i;
             }
         }
         
         return -1;
-    }
-
-    public void StartDrag()
-    {
-        this._isDrag = true;
-    }
-
-    public void StartResize(int editMarkerIndex)
-    {
-        this._editMarkerIndex = editMarkerIndex;
-    }
-
-    public void StopEdit()
-    {
-        this._isDrag = false;
-        this._editMarkerIndex = null;
-        this._dragStart = null;
     }
 }

@@ -1,8 +1,43 @@
 namespace diter;
 
-public abstract class Shape
+public class Shape(Color color)
 {
-    public abstract void Draw(Graphics g);
+    private bool _isEdit;
+    private readonly List<Line> _borderLinesList = [];
+    protected readonly List<Point> PointsList = [];
+    
+    public void Draw(Graphics g)
+    {
+        if (_isEdit)
+        {
+            SetBordersLines();
+        }
+        foreach (var line in _borderLinesList)
+        {
+            line.Draw(g);
+        }
+    }
 
-    public abstract void SetPoints(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight);
+    public void StartEdit()
+    {
+        _isEdit = true;
+    }
+
+    public void StopEdit()
+    {
+        _isEdit = false;
+    }
+    
+    public virtual void SetCornersPoints(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {}
+    
+    private void SetBordersLines()
+    {
+        _borderLinesList.Clear();
+        for (var i = 0; i < PointsList.Count; i++)
+        {
+            var startPoint = PointsList[i];
+            var endPoint = PointsList[(i + 1) % PointsList.Count];
+            _borderLinesList.Add(new Line(startPoint, endPoint, color));
+        }
+    }
 }

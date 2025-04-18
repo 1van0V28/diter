@@ -2,37 +2,30 @@ namespace diter;
 
 public class Line(Point start, Point end, Color color)
 {
-    private Point _start = start;
-    private Point _end = end;
-    protected List<Point>? PixelsList;
-    private Color _color = color;
+    protected List<Point> PixelsList => GetBrezenhamPixels();
 
     public void Draw(Graphics g)
     {
-        this.SetBrezenhamPixels();
-        if (this.PixelsList != null)
-        {
-            foreach (var pixel in this.PixelsList)
-            {
-                g.FillRectangle(new SolidBrush(this._color), pixel.X, pixel.Y, 1, 1);
-            }
+        foreach (var pixel in PixelsList) 
+        { 
+            g.FillRectangle(new SolidBrush(color), pixel.X, pixel.Y, 1, 1);
         }
     }
     
-    protected void SetBrezenhamPixels()
+    private List<Point> GetBrezenhamPixels()
     {
-        var start1 = new Point(this._start.X, this._start.Y); 
-        var dx = Math.Abs(this._end.X - this._start.X); 
-        var dy = Math.Abs(this._end.Y - this._start.Y); 
-        var sx = this._start.X < this._end.X ? 1 : -1; 
-        var sy = this._start.Y < this._end.Y ? 1 : -1; 
+        var start1 = new Point(start.X, start.Y); 
+        var dx = Math.Abs(end.X - start.X); 
+        var dy = Math.Abs(end.Y - start.Y); 
+        var sx = start.X < end.X ? 1 : -1; 
+        var sy = start.Y < end.Y ? 1 : -1; 
         var error = dx - dy;
         
         var pixels = new List<Point>(); 
         while (true) 
         { 
             pixels.Add(new Point(start1.X, start1.Y)); 
-            if (start1.X == this._end.X && start1.Y == this._end.Y) 
+            if (start1.X == end.X && start1.Y == end.Y) 
             { 
                 break;
             }
@@ -48,6 +41,7 @@ public class Line(Point start, Point end, Color color)
                 start1.Y += sy;
             }
         }
-        this.PixelsList = pixels;
+        
+        return pixels;
     }
 }

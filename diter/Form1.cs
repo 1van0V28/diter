@@ -2,19 +2,24 @@ namespace diter;
 
 public partial class Form1 : Form
 {
-    private Frame? _editFrame = null;
-    private List<Frame> _framesList = new List<Frame>();
-    private bool _isMouseDown = false;
+    private Frame? _editFrame;
+    private readonly Stack<Frame> _framesList = [];
+    private bool _isMouseDown;
     
     public Form1()
     {
         InitializeComponent();
-        this.DoubleBuffered = true;
+        
+        DoubleBuffered = true;
+        SplitContainer1.Panel2.GetType()
+            .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            ?.SetValue(SplitContainer1.Panel2, true);
     }
 
     private void DrawPanel_Paint(object sender, PaintEventArgs e)
     {
-        foreach (var editRect in this._framesList)
+        e.Graphics.Clear(SplitContainer1.Panel2.BackColor);
+        foreach (var editRect in _framesList)
         {
             editRect.Draw(e.Graphics);
         }
@@ -24,45 +29,61 @@ public partial class Form1 : Form
     {
         foreach (var frame in _framesList)
         {
-            if (frame.GetIsMouseDown(e.Location))
+            if (frame.GetIsMouseDown(e.Location) && _editFrame == null)
             {
-                this._editFrame = frame;
-                this._editFrame.StartDrag();
-                this._isMouseDown = true;
-                SplitContainer1.Panel2.Invalidate();
+                StartDragFrame(frame);
                 return;
-            } else if (frame.GetMouseDownMarkerIndex(e.Location) != -1)
+            } 
+            if (frame.GetMouseDownMarkerIndex(e.Location) != -1 && _editFrame == null)
             {
-                this._editFrame = frame;
-                this._editFrame.StartResize(frame.GetMouseDownMarkerIndex(e.Location));
-                this._isMouseDown = true;
-                SplitContainer1.Panel2.Invalidate();
+                StartResizeFrame(frame, e.Location);
                 return;
             }
         }
-        var newShape = new Pentagon(Color.Crimson);
-        var newEditRect = new Frame(e.Location, newShape);
-        _framesList.Add(newEditRect);
-        this._editFrame = newEditRect;
-        this._isMouseDown = true;
+        StartAddFrame(e.Location);
     }
 
     private void DrawPanel_MouseMove(object sender, MouseEventArgs e)
     {
-        if (this._isMouseDown && this._editFrame != null)
+        if (_isMouseDown && _editFrame != null)
         {
-            this._editFrame.EditFrame(e.Location);
+            _editFrame.EditFrame(e.Location);
             SplitContainer1.Panel2.Invalidate();
         }
     }
 
     private void DrawPanel_MouseUp(object sender, MouseEventArgs e)
     {
-        if (this._editFrame != null)
+        if (_editFrame != null)
         {
-            this._editFrame.StopEdit();
-            this._editFrame = null;
+            _editFrame.StopEdit();
+            _editFrame = null;
         }
-        this._isMouseDown = false;
+        _isMouseDown = false;
+    }
+
+    private void StartDragFrame(Frame frame)
+    {
+        _editFrame = frame;
+        _editFrame.StartDrag();
+        _isMouseDown = true; 
+        SplitContainer1.Panel2.Invalidate();
+    }
+    
+    private void StartResizeFrame(Frame frame, Point mousePos)
+    {
+        _editFrame = frame;
+        _editFrame.StartResize(frame.GetMouseDownMarkerIndex(mousePos));
+        _isMouseDown = true;
+        SplitContainer1.Panel2.Invalidate();
+    }
+
+    private void StartAddFrame(Point mousePos)
+    {
+        var newShape = new Triangle(Color.Crimson);
+        var newFrame = new Frame(mousePos, newShape);
+        _framesList.Push(newFrame);
+        _editFrame = newFrame;
+        _isMouseDown = true;
     }
 }

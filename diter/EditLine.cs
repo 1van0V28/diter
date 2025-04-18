@@ -2,31 +2,28 @@ namespace diter;
 
 public class EditLine(Point start, Point end, Color color): Line(start, end, color)
 {
-    private Marker? _marker;
+    private Marker? Marker => GetMarker();
 
     public new void Draw(Graphics g)
     {
         base.Draw(g);
         
-        this.SetMarker();
-        if (_marker != null)
-        {
-            this._marker.Draw(g);
-        }
+        Marker?.Draw(g);
     }
     
-    private void SetMarker()
+    private Marker? GetMarker()
     {
-        base.SetBrezenhamPixels();
-        if (base.PixelsList != null)
+        if (PixelsList != null)
         {
-            var markerPos = base.PixelsList[base.PixelsList.Count / 2];
-            this._marker = new Marker(markerPos);
+            var markerPos = PixelsList[PixelsList.Count / 2];
+            return new Marker(markerPos);
         }
+
+        return null;
     }
 
     public bool GetIsMouseDownMarker(Point mousePos)
     {
-        return this._marker?.GetIsMouseDown(mousePos) ?? false;
+        return Marker?.GetIsMouseDown(mousePos) ?? false;
     }
 }

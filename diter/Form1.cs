@@ -27,8 +27,16 @@ public partial class Form1 : Form
             if (frame.GetIsMouseDown(e.Location))
             {
                 this._editFrame = frame;
-                this._editFrame.StartEdit();
+                this._editFrame.StartDrag();
                 this._isMouseDown = true;
+                SplitContainer1.Panel2.Invalidate();
+                return;
+            } else if (frame.GetMouseDownMarkerIndex(e.Location) != -1)
+            {
+                this._editFrame = frame;
+                this._editFrame.StartResize(frame.GetMouseDownMarkerIndex(e.Location));
+                this._isMouseDown = true;
+                SplitContainer1.Panel2.Invalidate();
                 return;
             }
         }

@@ -1,27 +1,25 @@
 namespace diter;
 
-public class Line(Point start, Point end, Color color) : Shape // Добавить линию для отрисовки и линию для редактирования
+public class Line(Point start, Point end, Color color)
 {
     private Point _start = start;
     private Point _end = end;
-    private List<Point>? _pixelsList = null;
+    protected List<Point>? PixelsList;
     private Color _color = color;
 
-    public override void Draw(Graphics g)
+    public void Draw(Graphics g)
     {
         this.SetBrezenhamPixels();
-        foreach (var pixel in this._pixelsList)
+        if (this.PixelsList != null)
         {
-            g.FillRectangle(new SolidBrush(this._color), pixel.X, pixel.Y, 1, 1);
+            foreach (var pixel in this.PixelsList)
+            {
+                g.FillRectangle(new SolidBrush(this._color), pixel.X, pixel.Y, 1, 1);
+            }
         }
     }
-
-    public override void SetPoints(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight)
-    {
-        throw new NotImplementedException();
-    }
     
-    private void SetBrezenhamPixels()
+    protected void SetBrezenhamPixels()
     {
         var start1 = new Point(this._start.X, this._start.Y); 
         var dx = Math.Abs(this._end.X - this._start.X); 
@@ -50,6 +48,6 @@ public class Line(Point start, Point end, Color color) : Shape // Добавит
                 start1.Y += sy;
             }
         }
-        this._pixelsList = pixels;
+        this.PixelsList = pixels;
     }
 }

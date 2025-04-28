@@ -28,7 +28,7 @@ public class Shape(Color color)
         _isEdit = false;
     }
     
-    public virtual void SetCornersPoints(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {}
+    public virtual void SetCornersPoints(Point[] editRectCornersList) {}
 
     private void SetBordersLines()
     {

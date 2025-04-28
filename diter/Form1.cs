@@ -29,16 +29,16 @@ public partial class Form1 : Form
     {
         foreach (var frame in _framesList)
         {
-            if (frame.GetIsMouseDown(e.Location) && _editFrame == null)
-            {
-                StartDragFrame(frame);
-                return;
-            } 
             if (frame.GetMouseDownMarkerIndex(e.Location) != -1 && _editFrame == null)
             {
                 StartResizeFrame(frame, e.Location);
                 return;
             }
+            if (frame.GetIsMouseDown(e.Location) && _editFrame == null)
+            {
+                StartDragFrame(frame);
+                return;
+            } 
         }
         StartAddFrame(e.Location);
     }

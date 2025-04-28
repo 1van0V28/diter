@@ -42,11 +42,11 @@ partial class Form1
         SplitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
         // 
         // SplitContainer1.Panel2
+        // 
         SplitContainer1.Panel2.Paint += DrawPanel_Paint;
         SplitContainer1.Panel2.MouseDown += DrawPanel_MouseDown;
         SplitContainer1.Panel2.MouseMove += DrawPanel_MouseMove;
         SplitContainer1.Panel2.MouseUp += DrawPanel_MouseUp;
-        //
         SplitContainer1.Size = new System.Drawing.Size(800, 450);
         SplitContainer1.SplitterDistance = 100;
         SplitContainer1.TabIndex = 0;

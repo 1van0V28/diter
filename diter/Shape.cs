@@ -29,7 +29,7 @@ public class Shape(Color color)
     }
     
     public virtual void SetCornersPoints(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {}
-    
+
     private void SetBordersLines()
     {
         _borderLinesList.Clear();

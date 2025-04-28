@@ -1,8 +1,8 @@
 namespace diter;
 
-public class EditLine(Point start, Point end, Color color): Line(start, end, color)
+public class EditLine(Point start, Point end, Color color, Point? markerPos = null): Line(start, end, color)
 {
-    private Marker? Marker => GetMarker();
+    private Marker Marker => GetMarker();
 
     public new void Draw(Graphics g)
     {
@@ -11,15 +11,9 @@ public class EditLine(Point start, Point end, Color color): Line(start, end, col
         Marker?.Draw(g);
     }
     
-    private Marker? GetMarker()
+    private Marker GetMarker()
     {
-        if (PixelsList != null)
-        {
-            var markerPos = PixelsList[PixelsList.Count / 2];
-            return new Marker(markerPos);
-        }
-
-        return null;
+        return new Marker(markerPos ?? PixelsList[PixelsList.Count / 2]);
     }
 
     public bool GetIsMouseDownMarker(Point mousePos)

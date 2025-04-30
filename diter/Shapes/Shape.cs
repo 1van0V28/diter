@@ -1,4 +1,4 @@
-namespace diter;
+namespace diter.Shapes;
 
 public class Shape(Color color)
 {
@@ -17,16 +17,6 @@ public class Shape(Color color)
             line.Draw(g);
         }
     }
-
-    public void StartEdit()
-    {
-        _isEdit = true;
-    }
-
-    public void StopEdit()
-    {
-        _isEdit = false;
-    }
     
     public virtual void SetCornersPoints(Point[] editRectCornersList) {}
 
@@ -39,5 +29,15 @@ public class Shape(Color color)
             var endPoint = PointsList[(i + 1) % PointsList.Count];
             _borderLinesList.Add(new Line(startPoint, endPoint, color));
         }
+    }
+    
+    public void StartEdit()
+    {
+        _isEdit = true;
+    }
+
+    public void StopEdit()
+    {
+        _isEdit = false;
     }
 }

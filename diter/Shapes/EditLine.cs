@@ -1,4 +1,4 @@
-namespace diter;
+namespace diter.Shapes;
 
 public class EditLine(Point start, Point end, Color color, Point? markerPos = null): Line(start, end, color)
 {
@@ -8,7 +8,7 @@ public class EditLine(Point start, Point end, Color color, Point? markerPos = nu
     {
         base.Draw(g);
         
-        Marker?.Draw(g);
+        Marker.Draw(g);
     }
     
     private Marker GetMarker()
@@ -18,6 +18,6 @@ public class EditLine(Point start, Point end, Color color, Point? markerPos = nu
 
     public bool GetIsMouseDownMarker(Point mousePos)
     {
-        return Marker?.GetIsMouseDown(mousePos) ?? false;
+        return Marker.GetIsMouseDown(mousePos);
     }
 }

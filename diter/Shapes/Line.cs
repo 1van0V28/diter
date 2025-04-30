@@ -1,4 +1,4 @@
-namespace diter;
+namespace diter.Shapes;
 
 public class Line(Point start, Point end, Color color)
 {

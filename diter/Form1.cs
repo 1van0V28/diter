@@ -1,10 +1,8 @@
 namespace diter;
 
-public partial class Form1 : Form
+public sealed partial class Form1 : Form
 {
-    private Frame? _editFrame;
-    private readonly Stack<Frame> _framesList = [];
-    private bool _isMouseDown;
+    private readonly DrawingController _drawingController = new();
     
     public Form1()
     {
@@ -19,7 +17,7 @@ public partial class Form1 : Form
     private void DrawPanel_Paint(object sender, PaintEventArgs e)
     {
         e.Graphics.Clear(SplitContainer1.Panel2.BackColor);
-        foreach (var editRect in _framesList)
+        foreach (var editRect in _drawingController.FramesList)
         {
             editRect.Draw(e.Graphics);
         }
@@ -27,75 +25,19 @@ public partial class Form1 : Form
 
     private void DrawPanel_MouseDown(object sender, MouseEventArgs e)
     {
-        foreach (var frame in _framesList)
-        {
-            if (frame.GetMouseDownMarkerIndex(e.Location) != -1 && _editFrame == null)
-            {
-                StartResizeFrame(frame, e.Location);
-                if (frame.GetMouseDownMarkerIndex(e.Location) == 4)
-                {
-                    StartRotateFrame(frame, e.Location);
-                }
-                return;
-            }
-            if (frame.GetIsMouseDown(e.Location) && _editFrame == null)
-            {
-                StartDragFrame(frame, e.Location);
-                return;
-            }
-        }
-        StartAddFrame(e.Location);
+        _drawingController.MouseDownAction(sender, e);
+        SplitContainer1.Panel2.Invalidate();
     }
 
     private void DrawPanel_MouseMove(object sender, MouseEventArgs e)
     {
-        if (_isMouseDown && _editFrame != null)
-        {
-            _editFrame.EditFrame(e.Location);
-            SplitContainer1.Panel2.Invalidate();
-        }
+        _drawingController.MouseMoveAction(sender, e);
+        SplitContainer1.Panel2.Invalidate();
     }
 
     private void DrawPanel_MouseUp(object sender, MouseEventArgs e)
     {
-        if (_editFrame != null)
-        {
-            _editFrame.StopEdit();
-            _editFrame = null;
-        }
-        _isMouseDown = false;
-    }
-
-    private void StartDragFrame(Frame frame, Point mousePos)
-    {
-        _editFrame = frame;
-        _editFrame.StartDrag(mousePos);
-        _isMouseDown = true; 
-        SplitContainer1.Panel2.Invalidate();
-    }
-    
-    private void StartResizeFrame(Frame frame, Point mousePos)
-    {
-        _editFrame = frame;
-        _editFrame.StartResize(frame.GetMouseDownMarkerIndex(mousePos), mousePos);
-        _isMouseDown = true;
-        SplitContainer1.Panel2.Invalidate();
-    }
-
-    private void StartAddFrame(Point mousePos)
-    {
-        var newShape = new Triangle(Color.Crimson);
-        var newFrame = new Frame(mousePos, newShape);
-        _framesList.Push(newFrame);
-        _editFrame = newFrame;
-        _isMouseDown = true;
-    }
-
-    private void StartRotateFrame(Frame frame, Point mousePos)
-    {
-        _editFrame = frame;
-        _editFrame.StartRotation(mousePos);
-        _isMouseDown = true;
+        _drawingController.MouseUpAction(sender, e);
         SplitContainer1.Panel2.Invalidate();
     }
 }

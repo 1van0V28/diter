@@ -1,3 +1,5 @@
+using diter.Shapes;
+
 namespace diter;
 
 public class Triangle(Color color): Shape(color)

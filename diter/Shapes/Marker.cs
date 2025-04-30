@@ -1,9 +1,9 @@
-namespace diter;
+namespace diter.Shapes;
 
-public class Marker(Point pos)
+public class Marker(Point pos) // в перспективе можно рассматривать как наследник shape
 {
-    private readonly Point _topLeft = new Point(pos.X - 15, pos.Y - 15);
-    private readonly Point _bottomRight = new Point(pos.X + 15, pos.Y + 15);
+    private readonly Point _topLeft = new(pos.X - 15, pos.Y - 15);
+    private readonly Point _bottomRight = new(pos.X + 15, pos.Y + 15);
 
     public void Draw(Graphics g)
     {
@@ -17,5 +17,4 @@ public class Marker(Point pos)
 
         return (isMouseDownX && isMouseDownY);
     }
-
 }

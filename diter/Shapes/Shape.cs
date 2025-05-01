@@ -3,8 +3,8 @@ namespace diter.Shapes;
 public class Shape(Color color)
 {
     private bool _isEdit;
-    private readonly List<Line> _borderLinesList = [];
-    protected readonly List<Point> PointsList = [];
+    protected readonly List<Line> BorderLinesList = [];
+    protected List<Point> PointsList = [];
     
     public void Draw(Graphics g)
     {
@@ -12,7 +12,7 @@ public class Shape(Color color)
         {
             SetBordersLines();
         }
-        foreach (var line in _borderLinesList)
+        foreach (var line in BorderLinesList)
         {
             line.Draw(g);
         }
@@ -20,15 +20,29 @@ public class Shape(Color color)
     
     public virtual void SetCornersPoints(Point[] editRectCornersList) {}
 
-    private void SetBordersLines()
+    public virtual void SetCornersPoints(Point mousePos) {}
+
+    public virtual void AddNewCorner(Point mousePos) {}
+
+    protected virtual void SetBordersLines()
     {
-        _borderLinesList.Clear();
+        BorderLinesList.Clear();
         for (var i = 0; i < PointsList.Count; i++)
         {
             var startPoint = PointsList[i];
             var endPoint = PointsList[(i + 1) % PointsList.Count];
-            _borderLinesList.Add(new Line(startPoint, endPoint, color));
+            BorderLinesList.Add(new Line(startPoint, endPoint, color));
         }
+    }
+
+    public Point[] GetEndPoints()
+    {
+        var minX = PointsList.Min(point => point.X);
+        var minY = PointsList.Min(point => point.Y);
+        var maxX = PointsList.Max(point => point.X);
+        var maxY = PointsList.Max(point => point.Y);
+        
+        return [new Point(minX, minY), new Point(maxX, maxY)];
     }
     
     public void StartEdit()
@@ -36,7 +50,7 @@ public class Shape(Color color)
         _isEdit = true;
     }
 
-    public void StopEdit()
+    public virtual void StopEdit()
     {
         _isEdit = false;
     }

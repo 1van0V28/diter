@@ -6,6 +6,7 @@ public class Frame(Point start, Shape shape)
     private bool _isResizing;
     private bool _isRotating;
     private bool _isDragging;
+    private bool _isAddingNewCorner;
     private int _radiusCircumCircle;
     private int? _resizeMarkerIndex;
     private Point? _mouseStartPos;
@@ -24,6 +25,19 @@ public class Frame(Point start, Shape shape)
             }
         }
         shape.Draw(g);
+    }
+
+    private void UpdateFrameBorders(Point[] endPoints)
+    {
+        var topLeftX = endPoints[0].X; 
+        var topLeftY = endPoints[0].Y; 
+        var bottomRightX = endPoints[1].X; 
+        var bottomRightY = endPoints[1].Y;
+        
+        _cornersPointsList[0] = new Point(topLeftX, topLeftY); 
+        _cornersPointsList[1] = new Point(bottomRightX, topLeftY); 
+        _cornersPointsList[2] = new Point(bottomRightX, bottomRightY); 
+        _cornersPointsList[3] = new Point(topLeftX, bottomRightY);
     }
 
     private void SetCenterPoint()
@@ -216,6 +230,14 @@ public class Frame(Point start, Shape shape)
         _cornersPointsList[2] = new Point(bottomRightX, bottomRightY); 
         _cornersPointsList[3] = new Point(topLeftX, bottomRightY);
     }
+
+    private void UpdateFrame()
+    {
+        SetCenterPoint();
+        SetRadiusCircumCircle();
+        SetBordersLines();
+        shape.SetCornersPoints(_cornersPointsList);
+    }
     
     public void EditFrame(Point mousePos)
     {
@@ -232,14 +254,20 @@ public class Frame(Point start, Shape shape)
         {
             ResizeFrame(mousePos); 
         }
+        else if (_isAddingNewCorner)
+        {
+            shape.SetCornersPoints(mousePos); // важен именно такой порядок, потому что обновляется последняя точка ломаной
+            UpdateFrameBorders(shape.GetEndPoints());
+            SetCenterPoint();
+            SetRadiusCircumCircle();
+            SetBordersLines();
+            return;
+        }
         else
         {
             AddFrame(mousePos);
         }
-        SetCenterPoint();
-        SetRadiusCircumCircle();
-        SetBordersLines();
-        shape.SetCornersPoints(_cornersPointsList);
+        UpdateFrame();
     }
     
     public void StartEdit() 
@@ -251,10 +279,15 @@ public class Frame(Point start, Shape shape)
     { 
         _isResizing = false; 
         _isRotating = false; 
-        _isDragging = false; 
+        _isDragging = false;
+        _isAddingNewCorner = false;
         _resizeMarkerIndex = null; 
         _mouseStartPos = null; 
-        shape.StopEdit();
+        shape.StopEdit(); // важен именно такой порядок, потому что этот метод удаляет последнюю точку
+        UpdateFrameBorders(shape.GetEndPoints());
+        SetCenterPoint();
+        SetRadiusCircumCircle();
+        SetBordersLines();
     }
     
     public void StartResize(int resizeMarkerIndex, Point mousePos) 
@@ -283,5 +316,17 @@ public class Frame(Point start, Shape shape)
         _mouseStartPos = mousePos; 
         // Сохраняем исходные координаты вершин перед началом перемещения
         _originalCornersPointsList = (Point[])_cornersPointsList.Clone();
+    }
+
+    public void StartAddNewCorner()
+    {
+        _isAddingNewCorner = true;
+        // shape.SetCornersPoints(mousePos);
+    }
+
+    public void AddNewCorner(Point mousePos)
+    {
+        IsEdit = true;
+        shape.AddNewCorner(mousePos);
     }
 }

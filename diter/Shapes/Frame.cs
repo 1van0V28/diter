@@ -7,88 +7,115 @@ public class Frame(Point start, Shape shape)
     private bool _isRotating;
     private bool _isDragging;
     private bool _isAddingNewCorner;
-    private int _radiusCircumCircle;
+    private double _radiusCircumCircle;
     private int? _resizeMarkerIndex;
     private Point? _mouseStartPos;
     private Point _center;
-    private Point[]? _originalCornersPointsList; // вершины на момент начала изменений
-    private readonly Point[] _cornersPointsList = new Point[4];
-    private readonly EditLine[] _borderLinesList = new EditLine[5];
+    private List<Point> _originalVerticesList = [];
+    private BrokenLine _frameBorder = new ([], Color.Black, true, true);
+    private BrokenLine _frameRotateLever = new ([], Color.Black, true, true);
     
     public void Draw(Graphics g)
     {
-        if (IsEdit) // отображаем обводку
+        if (IsEdit)
         {
-            foreach (var line in _borderLinesList)
-            { 
-                line.Draw(g);
-            }
+            _frameBorder.Draw(g);
+            _frameRotateLever.Draw(g);
         }
         shape.Draw(g);
     }
 
-    private void UpdateFrameBorders(Point[] endPoints)
+    private void SetFrameBorder(Point[] endPoints)
     {
         var topLeftX = endPoints[0].X; 
         var topLeftY = endPoints[0].Y; 
         var bottomRightX = endPoints[1].X; 
         var bottomRightY = endPoints[1].Y;
         
-        _cornersPointsList[0] = new Point(topLeftX, topLeftY); 
-        _cornersPointsList[1] = new Point(bottomRightX, topLeftY); 
-        _cornersPointsList[2] = new Point(bottomRightX, bottomRightY); 
-        _cornersPointsList[3] = new Point(topLeftX, bottomRightY);
+        var originalVerticesList = new List<Point>
+        {
+            new (topLeftX, topLeftY),
+            new (bottomRightX, topLeftY),
+            new (bottomRightX, bottomRightY),
+            new (topLeftX, bottomRightY),
+        };
+        _frameBorder = new BrokenLine(originalVerticesList, Color.Black, true, true);
     }
 
     private void SetCenterPoint()
     { 
         if (_isRotating) return;
+
+        var cornersPointsList = _frameBorder.OriginalVerticesList;
+        double centerX = Math.Abs(cornersPointsList[0].X + (cornersPointsList[2].X - cornersPointsList[0].X) / 2); 
+        double centerY = Math.Abs(cornersPointsList[0].Y + (cornersPointsList[2].Y - cornersPointsList[0].Y) / 2);
         
-        var centerX = Math.Abs(_cornersPointsList[0].X + (_cornersPointsList[2].X - _cornersPointsList[0].X) / 2); 
-        var centerY = Math.Abs(_cornersPointsList[0].Y + (_cornersPointsList[2].Y - _cornersPointsList[0].Y) / 2);
-        
-        _center = new Point(centerX, centerY);
-    }
-    private void SetBordersLines()
-    { 
-        for (var i = 0; i < _cornersPointsList.Length; i++) 
-        { 
-            var startPoint = _cornersPointsList[i]; 
-            var endPoint = _cornersPointsList[(i + 1) % _cornersPointsList.Length];
-            
-            _borderLinesList[i] = new EditLine(startPoint, endPoint, Color.Black);
-        }
-        
-        var rotateMarkerPos = new Point(_center.X, _center.Y - _radiusCircumCircle);
-        _borderLinesList[4] = new EditLine(_center, rotateMarkerPos, Color.Black, rotateMarkerPos);
+        _center = new Point((int)centerX, (int)centerY);
     }
     
-    private void SetRadiusCircumCircle() 
-    { 
-        var width = (double)_cornersPointsList[1].X - _cornersPointsList[0].X; 
-        var height = (double)_cornersPointsList[3].Y - _cornersPointsList[0].Y;
-        
-        _radiusCircumCircle = (int)Math.Sqrt(Math.Pow(width / 2, 2) + Math.Pow(height / 2, 2));
+    private void SetFrameRotateLever()
+    {
+        var cornersPointsList = _frameBorder.OriginalVerticesList;
+        var width = Math.Sqrt(
+            Math.Pow(cornersPointsList[1].X - cornersPointsList[0].X, 2)
+            + 
+            Math.Pow(cornersPointsList[1].Y - cornersPointsList[0].Y, 2)
+            ); 
+        var height = Math.Sqrt(
+            Math.Pow(cornersPointsList[3].X - cornersPointsList[0].X, 2)
+            + 
+            Math.Pow(cornersPointsList[3].Y - cornersPointsList[0].Y, 2)
+        ); 
+        _radiusCircumCircle = Math.Sqrt(Math.Pow(width / 2, 2) + Math.Pow(height / 2, 2));
+        _frameRotateLever = new BrokenLine([_center, new Point(_center.X, _center.Y - (int)_radiusCircumCircle)], Color.Black, true);
     }
         
-    public bool GetIsMouseDown(Point mousePos) // переделать с учётом поворота
+    public bool GetIsMouseDown(Point mousePos)
     { 
-        var isMouseDownX = _cornersPointsList[0].X < mousePos.X && mousePos.X < _cornersPointsList[1].X; 
-        var isMouseDownY = _cornersPointsList[0].Y < mousePos.Y && mousePos.Y < _cornersPointsList[3].Y;
-        
-        return (isMouseDownX && isMouseDownY);
+        var cornersPointsList = _frameBorder.OriginalVerticesList;
+        if (cornersPointsList.Count == 0) return false;
+        // Определяем угол поворота по стороне V_0-V_1
+        var dx = cornersPointsList[1].X - cornersPointsList[0].X;
+        var dy = cornersPointsList[1].Y - cornersPointsList[0].Y;
+        double angle = (float)Math.Atan2(dy, dx);
+        double cosAngle = (float)Math.Cos(-angle); // Обратный поворот
+        double sinAngle = (float)Math.Sin(-angle);
+
+        // Преобразуем координаты мыши в локальную систему
+        var offsetX = mousePos.X - _center.X;
+        var offsetY = mousePos.Y - _center.Y;
+        var localX = offsetX * cosAngle - offsetY * sinAngle;
+        var localY = offsetX * sinAngle + offsetY * cosAngle;
+
+        // Находим границы прямоугольника в локальной системе
+        double minX = double.MaxValue, maxX = double.MinValue;
+        double minY = double.MaxValue, maxY = double.MinValue;
+        foreach (var vertex in cornersPointsList)
+        {
+            var vx = vertex.X - _center.X;
+            var vy = vertex.Y - _center.Y;
+            var localVx = vx * cosAngle - vy * sinAngle;
+            var localVy = vx * sinAngle + vy * cosAngle;
+            minX = Math.Min(minX, localVx);
+            maxX = Math.Max(maxX, localVx);
+            minY = Math.Min(minY, localVy);
+            maxY = Math.Max(maxY, localVy);
+        }
+
+        // Проверяем, находится ли точка внутри прямоугольника
+        return localX >= minX && localX <= maxX && localY >= minY && localY <= maxY;
     }
         
-    public int GetMouseDownMarkerIndex(Point mousePos) 
-    { 
-        for (var i = 0; i < _borderLinesList.Length; i++) 
-        { 
-            if (_borderLinesList[i].GetIsMouseDownMarker(mousePos)) 
-            { 
-                return i;
-            }
-        } 
-        return -1;
+    public int GetMouseDownMarkerIndex(Point mousePos)
+    {
+        var mouseDownMarkerBorderIndex = _frameBorder.GetMouseDownMarkerIndex(mousePos);
+        if (mouseDownMarkerBorderIndex != -1)
+        {
+            return mouseDownMarkerBorderIndex;
+        }
+        
+        var mouseDownMarkerLeverIndex = _frameRotateLever.GetMouseDownMarkerIndex(mousePos);
+        return mouseDownMarkerLeverIndex == -1 ? mouseDownMarkerLeverIndex : 4;
     }
 
     private void ResizeFrame(Point mousePos)
@@ -96,178 +123,166 @@ public class Frame(Point start, Shape shape)
         switch (_resizeMarkerIndex) 
         { 
             case 0: ResizeSide(mousePos, 0, 1); 
-                return;
+                break;
             case 1: ResizeSide(mousePos, 1, 2); 
-                return;
+                break;
             case 2: ResizeSide(mousePos, 2, 3); 
-                return;
+                break;
             case 3: ResizeSide(mousePos, 3, 0); 
-                return;
+                break;
         }
     }
     
     private void ResizeSide(Point mousePos, int firstPointIndex, int secondPointIndex)
     { 
-        if (_mouseStartPos == null || _originalCornersPointsList == null) return; // проверка, что масштабирование начато
+        if (_mouseStartPos == null) return; // Проверка, что масштабирование начато
         
         // Вектор перетягиваемой стороны
-        float sideX = _originalCornersPointsList[secondPointIndex].X - _originalCornersPointsList[firstPointIndex].X;
-        float sideY = _originalCornersPointsList[secondPointIndex].Y - _originalCornersPointsList[firstPointIndex].Y;
+        var sideX = _originalVerticesList[secondPointIndex].X - _originalVerticesList[firstPointIndex].X;
+        var sideY = _originalVerticesList[secondPointIndex].Y - _originalVerticesList[firstPointIndex].Y;
 
         // Перпендикулярный вектор (направление изменения размера)
-        float normalX = sideY; // (y2 - y1)
-        float normalY = -sideX; // -(x2 - x1)
+        double normalX = sideY; // (y2 - y1)
+        double normalY = -sideX; // -(x2 - x1)
 
         // Нормализуем перпендикулярный вектор
-        float length = (float)Math.Sqrt(normalX * normalX + normalY * normalY);
+        var length = Math.Sqrt(normalX * normalX + normalY * normalY);
         if (length == 0) return; // Избегаем деления на ноль
         normalX /= length;
         normalY /= length;
 
         // Проецируем смещение мыши на перпендикулярное направление
-        float dx = mousePos.X - _mouseStartPos.Value.X;
-        float dy = mousePos.Y - _mouseStartPos.Value.Y;
-        float projection = dx * normalX + dy * normalY;
+        var dx = mousePos.X - _mouseStartPos.Value.X;
+        var dy = mousePos.Y - _mouseStartPos.Value.Y;
+        var projection = dx * normalX + dy * normalY;
 
         // Вычисляем знаковое расстояние между перетягиваемой и противоположной сторонами
         // Берем средние точки сторон
-        var oppFirstPointIndex = (firstPointIndex + 3) % _cornersPointsList.Length;
-        var oppSecondPointIndex = (secondPointIndex + 1) % _cornersPointsList.Length;
-        float sideMidX = (_originalCornersPointsList[firstPointIndex].X + _originalCornersPointsList[secondPointIndex].X) / 2f;
-        float sideMidY = (_originalCornersPointsList[firstPointIndex].Y + _originalCornersPointsList[secondPointIndex].Y) / 2f;
-        float oppSideMidX = (_originalCornersPointsList[oppFirstPointIndex].X + _originalCornersPointsList[oppSecondPointIndex].X) / 2f;
-        float oppSideMidY = (_originalCornersPointsList[oppFirstPointIndex].Y + _originalCornersPointsList[oppSecondPointIndex].Y) / 2f;
+        var oppFirstPointIndex = (firstPointIndex + 3) % _originalVerticesList.Count;
+        var oppSecondPointIndex = (secondPointIndex + 1) % _originalVerticesList.Count;
+        double sideMidX = (_originalVerticesList[firstPointIndex].X + _originalVerticesList[secondPointIndex].X) / 2f;
+        double sideMidY = (_originalVerticesList[firstPointIndex].Y + _originalVerticesList[secondPointIndex].Y) / 2f;
+        double oppSideMidX = (_originalVerticesList[oppFirstPointIndex].X + _originalVerticesList[oppSecondPointIndex].X) / 2f;
+        double oppSideMidY = (_originalVerticesList[oppFirstPointIndex].Y + _originalVerticesList[oppSecondPointIndex].Y) / 2f;
 
         // Вектор от противоположной стороны к перетягиваемой
-        float distX = sideMidX - oppSideMidX;
-        float distY = sideMidY - oppSideMidY;
+        var distX = sideMidX - oppSideMidX;
+        var distY = sideMidY - oppSideMidY;
 
         // Знаковое расстояние (проекция на нормаль)
-        float signedDistance = distX * normalX + distY * normalY;
+        var signedDistance = distX * normalX + distY * normalY;
 
         // Ограничиваем проекцию только для уменьшения размера
         if (projection < 0) // Пользователь уменьшает размер
         {
             // Минимальное допустимое расстояние между сторонами
-            float minSize = 10f;
+            const double minSize = 10f;
             // Ограничиваем отрицательное смещение, чтобы не пересекать противоположную сторону
-            float maxNegativeProjection = -(Math.Abs(signedDistance) - minSize);
+            var maxNegativeProjection = -(Math.Abs(signedDistance) - minSize);
             projection = Math.Max(projection, maxNegativeProjection);
         }
         // Для положительного projection (увеличение размера) ограничений нет
 
         // Обновляем координаты вершин перетягиваемой стороны
-        _cornersPointsList[firstPointIndex] = new Point(
-            (int)(_originalCornersPointsList[firstPointIndex].X + projection * normalX),
-            (int)(_originalCornersPointsList[firstPointIndex].Y + projection * normalY)
+        var firstPoint = new Point(
+            (int)(_originalVerticesList[firstPointIndex].X + projection * normalX),
+            (int)(_originalVerticesList[firstPointIndex].Y + projection * normalY)
         );
-        _cornersPointsList[secondPointIndex] = new Point(
-            (int)(_originalCornersPointsList[secondPointIndex].X + projection * normalX),
-            (int)(_originalCornersPointsList[secondPointIndex].Y + projection * normalY)
+        var secondPoint = new Point(
+            (int)(_originalVerticesList[secondPointIndex].X + projection * normalX),
+            (int)(_originalVerticesList[secondPointIndex].Y + projection * normalY)
         );
+        var cornersPointsArray = new Point[4];
+        cornersPointsArray[firstPointIndex] = firstPoint;
+        cornersPointsArray[secondPointIndex] = secondPoint;
+        cornersPointsArray[oppFirstPointIndex] = _originalVerticesList[oppFirstPointIndex];
+        cornersPointsArray[oppSecondPointIndex] = _originalVerticesList[oppSecondPointIndex];
+        var cornersPointsList = cornersPointsArray.ToList();
+        
+        shape.Resize(_originalVerticesList, cornersPointsList, firstPointIndex, secondPointIndex);
+        _frameRotateLever.Resize(_originalVerticesList, cornersPointsList, firstPointIndex, secondPointIndex);
+        _frameBorder = new BrokenLine(cornersPointsList, Color.Black, true, true);
     }
     
     private void RotateFrame(Point mousePos)
     {
-        if (_mouseStartPos == null || _originalCornersPointsList == null) return; // Проверка, что вращение начато
+        if (_mouseStartPos == null) return; // Проверка, что вращение начато
 
         // Вычисление угла поворота относительно начальной позиции
-        float dxStart = _mouseStartPos.Value.X - _center.X;
-        float dyStart = _mouseStartPos.Value.Y - _center.Y;
-        float dxEnd = mousePos.X - _center.X;
-        float dyEnd = mousePos.Y - _center.Y;
+        double dxStart = _mouseStartPos.Value.X - _center.X;
+        double dyStart = _mouseStartPos.Value.Y - _center.Y;
+        double dxEnd = mousePos.X - _center.X;
+        double dyEnd = mousePos.Y - _center.Y;
 
-        var angleStart = (float)Math.Atan2(dyStart, dxStart);
-        var angleEnd = (float)Math.Atan2(dyEnd, dxEnd);
+        var angleStart = Math.Atan2(dyStart, dxStart);
+        var angleEnd = Math.Atan2(dyEnd, dxEnd);
         var angleRadians = angleEnd - angleStart;
 
-        // Поворот всех вершин относительно исходных координат
-        for (var i = 0; i < _cornersPointsList.Length; i++)
-        {
-            _cornersPointsList[i] = GetRotatedPoint(_originalCornersPointsList[i], angleRadians);
-        }
-    }
-
-    private Point GetRotatedPoint(Point point, float angleRadians)
-    {
-        float relativeX = point.X - _center.X;
-        float relativeY = point.Y - _center.Y;
-
-        var cosTheta = Math.Cos(angleRadians);
-        var sinTheta = Math.Sin(angleRadians);
-
-        // Вычисления с float для большей точности
-        float newX = _center.X + (float)(relativeX * cosTheta - relativeY * sinTheta);
-        float newY = _center.Y + (float)(relativeX * sinTheta + relativeY * cosTheta);
-
-        // Приведение к int с округлением
-        return new Point((int)Math.Round(newX), (int)Math.Round(newY));
+        shape.Rotate(_center, angleRadians);
+        _frameRotateLever.Rotate(_center, angleRadians);
+        _frameBorder.Rotate(_center, angleRadians);
     }
     
     private void DragFrame(Point mousePos)
     {
-        if (_mouseStartPos == null || _originalCornersPointsList == null) return; // проверка, что перемещение начато
+        if (_mouseStartPos == null) return; // Проверка, что перемещение начато
     
         var deltaX = mousePos.X - _mouseStartPos.Value.X;
         var deltaY = mousePos.Y - _mouseStartPos.Value.Y;
         
-        for (var i = 0; i < _cornersPointsList.Length; i++) 
-        { 
-            _cornersPointsList[i].X = _originalCornersPointsList[i].X + deltaX; 
-            _cornersPointsList[i].Y = _originalCornersPointsList[i].Y + deltaY;
-        }
+        shape.Drag(deltaX, deltaY);
+        _frameBorder.Drag(deltaX, deltaY);
+        _frameRotateLever.Drag(deltaX, deltaY);
     }
     
-    private void AddFrame(Point mousePos)
+    private void SetFrame(Point mousePos)
     { 
         var topLeftX = Math.Min(start.X, mousePos.X); 
         var topLeftY = Math.Min(start.Y, mousePos.Y); 
         var bottomRightX = Math.Max(start.X, mousePos.X); 
         var bottomRightY = Math.Max(start.Y, mousePos.Y);
         
-        _cornersPointsList[0] = new Point(topLeftX, topLeftY); 
-        _cornersPointsList[1] = new Point(bottomRightX, topLeftY); 
-        _cornersPointsList[2] = new Point(bottomRightX, bottomRightY); 
-        _cornersPointsList[3] = new Point(topLeftX, bottomRightY);
+        var originalVerticesList = new List<Point>
+        {
+            new (topLeftX, topLeftY),
+            new (bottomRightX, topLeftY),
+            new (bottomRightX, bottomRightY),
+            new (topLeftX, bottomRightY)
+        };
+        _frameBorder = new BrokenLine(originalVerticesList, Color.Black, true, true);
+        shape.SetBordersLines(_frameBorder.OriginalVerticesList);
+        SetFrameRotateLever();
     }
 
-    private void UpdateFrame()
+    private void AddNewCornerToFrame(Point mousePos)
     {
-        SetCenterPoint();
-        SetRadiusCircumCircle();
-        SetBordersLines();
-        shape.SetCornersPoints(_cornersPointsList);
+        // Обновляем последнюю точку ломаной и фрейм
+        shape.SetBordersLines(mousePos);
+        SetFrameBorder(shape.GetEndPoints());
+        SetFrameRotateLever();
     }
     
     public void EditFrame(Point mousePos)
     {
-        shape.StartEdit();
-        if (_isDragging) 
+        if (_isResizing)
+        { 
+            ResizeFrame(mousePos);
+        } else if (_isRotating)
+        { 
+            RotateFrame(mousePos);
+        } else if (_isDragging) 
         {
             DragFrame(mousePos);
         } 
-        else if (_isRotating)
-        {
-            RotateFrame(mousePos);
-        }
-        else if (_isResizing)
-        {
-            ResizeFrame(mousePos); 
-        }
         else if (_isAddingNewCorner)
         {
-            shape.SetCornersPoints(mousePos); // важен именно такой порядок, потому что обновляется последняя точка ломаной
-            UpdateFrameBorders(shape.GetEndPoints());
-            SetCenterPoint();
-            SetRadiusCircumCircle();
-            SetBordersLines();
-            return;
+            AddNewCornerToFrame(mousePos);
         }
         else
         {
-            AddFrame(mousePos);
+            SetFrame(mousePos);
         }
-        UpdateFrame();
+        SetCenterPoint();
     }
     
     public void StartEdit() 
@@ -275,53 +290,46 @@ public class Frame(Point start, Shape shape)
         IsEdit = true;
     }
 
-    public void StopEdit() 
-    { 
+    public void StopEdit()
+    {
+        // Фиксируем изменения
+        shape.SetOriginalVerticesList();
+        _frameRotateLever.SetOriginalVerticesList();
+        _frameBorder.SetOriginalVerticesList();
+        
+        IsEdit = false;
         _isResizing = false; 
         _isRotating = false; 
         _isDragging = false;
         _isAddingNewCorner = false;
         _resizeMarkerIndex = null; 
         _mouseStartPos = null; 
-        shape.StopEdit(); // важен именно такой порядок, потому что этот метод удаляет последнюю точку
-        UpdateFrameBorders(shape.GetEndPoints());
-        SetCenterPoint();
-        SetRadiusCircumCircle();
-        SetBordersLines();
     }
     
     public void StartResize(int resizeMarkerIndex, Point mousePos) 
     { 
         _isResizing = true;
-        
         _resizeMarkerIndex = resizeMarkerIndex; 
         _mouseStartPos = mousePos; 
         // Сохраняем исходные координаты вершин перед началом масштабирования
-        _originalCornersPointsList = (Point[])_cornersPointsList.Clone();
+        _originalVerticesList = _frameBorder.OriginalVerticesList;
     }
     
     public void StartRotate(Point mousePos)
     { 
         _isRotating = true;
-        
         _mouseStartPos = mousePos; 
-        // Сохраняем исходные координаты вершин перед началом вращения
-        _originalCornersPointsList = (Point[])_cornersPointsList.Clone();
     }
     
     public void StartDrag(Point mousePos)
     { 
         _isDragging = true; 
-        
         _mouseStartPos = mousePos; 
-        // Сохраняем исходные координаты вершин перед началом перемещения
-        _originalCornersPointsList = (Point[])_cornersPointsList.Clone();
     }
 
     public void StartAddNewCorner()
     {
         _isAddingNewCorner = true;
-        // shape.SetCornersPoints(mousePos);
     }
 
     public void AddNewCorner(Point mousePos)

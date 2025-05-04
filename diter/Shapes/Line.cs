@@ -2,17 +2,21 @@ namespace diter.Shapes;
 
 public class Line(Point start, Point end, Color color)
 {
-    protected List<Point> PixelsList => GetBrezenhamPixels();
+    protected readonly List<Point> PixelsList = [];
 
-    public void Draw(Graphics g)
+    public virtual void Draw(Graphics g)
     {
+        if (PixelsList.Count == 0)
+        {
+            UpdateBrezenhamPixels();
+        }
         foreach (var pixel in PixelsList) 
         { 
             g.FillRectangle(new SolidBrush(color), pixel.X, pixel.Y, 1, 1);
         }
     }
     
-    private List<Point> GetBrezenhamPixels()
+    private void UpdateBrezenhamPixels()
     {
         var start1 = new Point(start.X, start.Y); 
         var dx = Math.Abs(end.X - start.X); 
@@ -21,10 +25,10 @@ public class Line(Point start, Point end, Color color)
         var sy = start.Y < end.Y ? 1 : -1; 
         var error = dx - dy;
         
-        var pixels = new List<Point>(); 
+        PixelsList.Clear(); 
         while (true) 
         { 
-            pixels.Add(new Point(start1.X, start1.Y)); 
+            PixelsList.Add(new Point(start1.X, start1.Y)); 
             if (start1.X == end.X && start1.Y == end.Y) 
             { 
                 break;
@@ -41,7 +45,5 @@ public class Line(Point start, Point end, Color color)
                 start1.Y += sy;
             }
         }
-        
-        return pixels;
     }
 }

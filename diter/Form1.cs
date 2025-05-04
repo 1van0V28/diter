@@ -25,19 +25,19 @@ public sealed partial class Form1 : Form
 
     private void DrawPanel_MouseDown(object sender, MouseEventArgs e)
     {
-        _drawingController.MouseDownAction(sender, e);
+        _drawingController.MouseDownAction(e);
         SplitContainer1.Panel2.Invalidate();
     }
 
     private void DrawPanel_MouseMove(object sender, MouseEventArgs e)
     {
-        _drawingController.MouseMoveAction(sender, e);
+        _drawingController.MouseMoveAction(e);
         SplitContainer1.Panel2.Invalidate();
     }
 
     private void DrawPanel_MouseUp(object sender, MouseEventArgs e)
     {
-        _drawingController.MouseUpAction(sender, e);
+        _drawingController.MouseUpAction();
         SplitContainer1.Panel2.Invalidate();
     }
 }

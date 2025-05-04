@@ -4,12 +4,13 @@ namespace diter;
 
 public class DrawingController
 {
+    private bool _isAddLine = false;
     private bool _isEditLine;
     private Frame? _editFrame;
     public Stack<Frame> FramesList { get; } = [];
     private bool _isMouseDown;
     
-    public void MouseDownAction(object sender, MouseEventArgs e)
+    public void MouseDownAction(MouseEventArgs e)
     {
         if (!_isEditLine) // !!! нужно настроить выбор логики обработки событий мыши в зависимости от вида фигуры
         {
@@ -38,7 +39,7 @@ public class DrawingController
                     { 
                         StartResizeFrame(frame, editMarkerIndex, e.Location); 
                         return;
-                    }
+                    } 
                     if (editMarkerIndex == 4) 
                     { 
                         StartRotateFrame(frame, e.Location); 
@@ -64,7 +65,7 @@ public class DrawingController
         }
     }
 
-    public void MouseMoveAction(object sender, MouseEventArgs e)
+    public void MouseMoveAction(MouseEventArgs e)
     {
         if (!_isEditLine) // !!! нужно настроить выбор логики обработки событий мыши в зависимости от вида фигуры
         {
@@ -79,18 +80,11 @@ public class DrawingController
         }
     }
 
-    public void MouseUpAction(object sender, MouseEventArgs e)
+    public void MouseUpAction()
     {
-        if (!_isEditLine) // !!! нужно настроить выбор логики обработки событий мыши в зависимости от вида фигуры 
+        if (!_isEditLine && _isMouseDown) // !!! нужно настроить выбор логики обработки событий мыши в зависимости от вида фигуры 
         {
-            if (_editFrame != null)
-            { 
-                _editFrame.StopEdit(); // !!! если мы редактируем ломаную, метод удаляет последнюю точку
-            }
-            else 
-            { 
-                _editFrame = null;
-            } 
+            _editFrame?.StopEdit();
             _isMouseDown = false;
         }
     }
@@ -117,13 +111,19 @@ public class DrawingController
     }
     
     private void StartAddFrame(Point mousePos)
-    { 
-        var newShape = new BrokenLine([mousePos, mousePos], Color.Crimson); 
+    {
+        Shape newShape = _isAddLine ? 
+            new Polyline([mousePos, mousePos], Color.Crimson) : 
+            new Pentagon(Color.Crimson);
         var newFrame = new Frame(mousePos, newShape); 
         FramesList.Push(newFrame); 
         _editFrame = newFrame;
-        _editFrame.StartAddNewCorner();
-        _isEditLine = true; // !!! ссылка на bool переменную, которая отражает выбор типа фигуры
+
+        if (_isAddLine)
+        {
+            _editFrame.StartAddNewCorner();
+            _isEditLine = true;
+        }
         _isMouseDown = true;
     }
 

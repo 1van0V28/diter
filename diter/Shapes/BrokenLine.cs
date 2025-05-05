@@ -1,16 +1,28 @@
 namespace diter.Shapes;
 
-public class BrokenLine(List<Point> originalVerticesList, Color color, bool isEditable = false, bool isClosed = false)
+public class BrokenLine(List<Point> originalVerticesList, Color borderColor, bool isEditable = false, bool isClosed = false)
 {
     public List<Point> OriginalVerticesList { get; private set; } = originalVerticesList;
     private readonly List<Point> _verticesList = [..originalVerticesList];
-    private readonly List<Line> _linesList = []; 
+    private readonly List<Line> _linesList = [];
 
+    private readonly BitMask _bitMask = new BitMask();
+    private bool _isEdit = true;
+    private Color _fillColor = Color.Transparent;
     public void Draw(Graphics g)
     {
-        if (_linesList.Count == 0)
+        if (_isEdit)
         {
             UpdateLines();
+            if (_verticesList.Count != 0 && _fillColor != Color.Transparent && isClosed && !isEditable)
+            {
+                _bitMask.UpdateBitMask(GetEndPoints(), _verticesList);
+            }
+        }
+        
+        if (_fillColor != Color.Transparent && isClosed && !isEditable)
+        { 
+            _bitMask.Draw(g, GetEndPoints(), _fillColor);
         }
         
         foreach (var line in _linesList)
@@ -34,8 +46,8 @@ public class BrokenLine(List<Point> originalVerticesList, Color color, bool isEd
             var endPointIndex = isClosed ? (i + 1) % verticesListCount : i + 1;
             var endPoint = _verticesList[endPointIndex];
             var line = isEditable ?
-                new EditLine(startPoint, endPoint, color) :
-                new Line(startPoint, endPoint, color);
+                new EditLine(startPoint, endPoint, borderColor) :
+                new Line(startPoint, endPoint, borderColor);
             
             _linesList.Add(line);
         }
@@ -58,6 +70,16 @@ public class BrokenLine(List<Point> originalVerticesList, Color color, bool isEd
         } 
         return -1;
     } 
+    
+    public Point[] GetEndPoints()
+    {
+        var minX = _verticesList.Min(point => point.X);
+        var minY = _verticesList.Min(point => point.Y);
+        var maxX = _verticesList.Max(point => point.X);
+        var maxY = _verticesList.Max(point => point.Y);
+        
+        return [new Point(minX, minY), new Point(maxX, maxY)];
+    }
 
     public void Resize(List<Point> originalVerticesList, List<Point> verticesList, int firstPointIndex, int secondPointIndex)
     {
@@ -180,5 +202,20 @@ public class BrokenLine(List<Point> originalVerticesList, Color color, bool isEd
                     );
         }
         UpdateLines();
+    }
+
+    public void StartEdit()
+    {
+        _isEdit = true;
+    }
+
+    public void StopEdit()
+    {
+        _isEdit = false;
+    }
+
+    public void SetFillColor(Color color)
+    {
+        _fillColor = color;
     }
 }

@@ -106,7 +106,8 @@ public class DrawingController
     private void StartDragFrame(Frame frame, Point mousePos) 
     { 
         _editFrame = frame; 
-        _editFrame.StartDrag(mousePos); 
+        _editFrame.StartDrag(mousePos);
+        _editFrame.FillShape(Color.Aquamarine);
         _isMouseDown = true; 
     }
     
@@ -116,8 +117,9 @@ public class DrawingController
             new Polyline([mousePos, mousePos], Color.Crimson) : 
             new Pentagon(Color.Crimson);
         var newFrame = new Frame(mousePos, newShape); 
-        FramesList.Push(newFrame); 
+        FramesList.Push(newFrame);
         _editFrame = newFrame;
+        _editFrame.StartEdit();
 
         if (_isAddLine)
         {

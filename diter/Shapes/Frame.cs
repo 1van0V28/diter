@@ -17,12 +17,12 @@ public class Frame(Point start, Shape shape)
     
     public void Draw(Graphics g)
     {
+        shape.Draw(g);
         if (IsEdit)
         {
-            _frameBorder.Draw(g);
             _frameRotateLever.Draw(g);
+            _frameBorder.Draw(g);
         }
-        shape.Draw(g);
     }
 
     private void SetFrameBorder(Point[] endPoints)
@@ -288,6 +288,9 @@ public class Frame(Point start, Shape shape)
     public void StartEdit() 
     { 
         IsEdit = true;
+        shape.StartEdit();
+        _frameBorder.StartEdit();
+        _frameRotateLever.StartEdit();
     }
 
     public void StopEdit()
@@ -296,6 +299,10 @@ public class Frame(Point start, Shape shape)
         shape.SetOriginalVerticesList();
         _frameRotateLever.SetOriginalVerticesList();
         _frameBorder.SetOriginalVerticesList();
+        SetCenterPoint();
+        shape.StopEdit();
+        _frameBorder.StopEdit();
+        _frameRotateLever.StopEdit();
         
         IsEdit = false;
         _isResizing = false; 
@@ -336,5 +343,10 @@ public class Frame(Point start, Shape shape)
     {
         IsEdit = true;
         shape.AddNewCorner(mousePos);
+    }
+
+    public void FillShape(Color color)
+    {
+        shape.FillShape(color);
     }
 }

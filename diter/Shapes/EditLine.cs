@@ -1,10 +1,10 @@
 namespace diter.Shapes;
 
-public class EditLine(Point start, Point end, Color color, Point? markerPos = null): Line(start, end, color)
+public class EditLine(Point start, Point end, Color color, Point? markerPos = null): Line(start, end, color, true)
 {
     private Marker Marker => GetMarker();
 
-    public override void Draw(Graphics g)
+    public override void Draw(Graphics g) // в перспективе отрисовать с помощью BitMap
     {
         base.Draw(g);
         

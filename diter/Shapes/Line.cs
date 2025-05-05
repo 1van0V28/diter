@@ -1,22 +1,49 @@
 namespace diter.Shapes;
 
-public class Line(Point start, Point end, Color color)
+public class Line(Point start, Point end, Color color, bool isDashed = false)
 {
-    protected readonly List<Point> PixelsList = [];
+    public List<Point> PixelsList => GetBrezenhamPixels();
 
     public virtual void Draw(Graphics g)
     {
-        if (PixelsList.Count == 0)
+        if (isDashed)
         {
-            UpdateBrezenhamPixels();
+            DrawDashed(g);
         }
-        foreach (var pixel in PixelsList) 
-        { 
+        else
+        {
+            DrawLine(g);
+        }
+    }
+
+    private void DrawDashed(Graphics g)
+    {
+        const int gapLength = 5;
+        var isGap = false;
+        for (var i = 0; i < PixelsList.Count; i++)
+        {
+            if (i % gapLength == 0 && i != 0)
+            { 
+                isGap = !isGap;
+            }
+
+            if (!isGap)
+            {
+                var pixel = PixelsList[i];
+                g.FillRectangle(new SolidBrush(color), pixel.X, pixel.Y, 1, 1);
+            }
+        }
+    }
+
+    private void DrawLine(Graphics g)
+    {
+        foreach (var pixel in PixelsList)
+        {
             g.FillRectangle(new SolidBrush(color), pixel.X, pixel.Y, 1, 1);
         }
     }
     
-    private void UpdateBrezenhamPixels()
+    private List<Point> GetBrezenhamPixels()
     {
         var start1 = new Point(start.X, start.Y); 
         var dx = Math.Abs(end.X - start.X); 
@@ -25,10 +52,10 @@ public class Line(Point start, Point end, Color color)
         var sy = start.Y < end.Y ? 1 : -1; 
         var error = dx - dy;
         
-        PixelsList.Clear(); 
+        var pixelsList = new List<Point>(); 
         while (true) 
         { 
-            PixelsList.Add(new Point(start1.X, start1.Y)); 
+            pixelsList.Add(new Point(start1.X, start1.Y)); 
             if (start1.X == end.X && start1.Y == end.Y) 
             { 
                 break;
@@ -45,5 +72,6 @@ public class Line(Point start, Point end, Color color)
                 start1.Y += sy;
             }
         }
+        return pixelsList;
     }
 }

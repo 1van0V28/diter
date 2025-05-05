@@ -3,6 +3,21 @@ namespace diter.Shapes;
 public class Shape(Color color)
 {
     protected BrokenLine BordersLines = new([], color);
+
+    public void StartEdit()
+    {
+        BordersLines.StartEdit();
+    }
+
+    public void StopEdit()
+    {
+        BordersLines.StopEdit();
+    }
+
+    public void FillShape(Color color)
+    {
+        BordersLines.SetFillColor(color);
+    }
     
     public void Draw(Graphics g)
     {
@@ -46,12 +61,6 @@ public class Shape(Color color)
 
     public Point[] GetEndPoints()
     {
-        var verticesList = BordersLines.OriginalVerticesList;
-        var minX = verticesList.Min(point => point.X);
-        var minY = verticesList.Min(point => point.Y);
-        var maxX = verticesList.Max(point => point.X);
-        var maxY = verticesList.Max(point => point.Y);
-        
-        return [new Point(minX, minY), new Point(maxX, maxY)];
+        return BordersLines.GetEndPoints();
     }
 }

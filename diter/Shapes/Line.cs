@@ -2,7 +2,7 @@ namespace diter.Shapes;
 
 public class Line(Point start, Point end, Color color, bool isDashed = false)
 {
-    public List<Point> PixelsList => GetBrezenhamPixels();
+    public List<Point> PixelsList => GetPixelsList();
 
     public virtual void Draw(Graphics g)
     {
@@ -43,7 +43,7 @@ public class Line(Point start, Point end, Color color, bool isDashed = false)
         }
     }
     
-    private List<Point> GetBrezenhamPixels()
+    protected virtual List<Point> GetPixelsList() // алгоритм Брезенхема
     {
         var start1 = new Point(start.X, start.Y); 
         var dx = Math.Abs(end.X - start.X); 

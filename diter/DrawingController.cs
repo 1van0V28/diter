@@ -4,7 +4,7 @@ namespace diter;
 
 public class DrawingController
 {
-    private bool _isAddLine = false;
+    private bool _isAddLine = true;
     private bool _isEditLine;
     private Frame? _editFrame;
     public Stack<Frame> FramesList { get; } = [];
@@ -21,7 +21,8 @@ public class DrawingController
                 { 
                     if (!frame.IsEdit) // чтобы начать редактировать, нужно сначала перевести в состояние редактирования
                     { 
-                        _editFrame?.StopEdit(); 
+                        _editFrame?.StopEdit();
+                        _editFrame = frame;
                         frame.StartEdit(); 
                         return;
                     }
@@ -113,8 +114,9 @@ public class DrawingController
     
     private void StartAddFrame(Point mousePos)
     {
+        _editFrame?.StopEdit();
         Shape newShape = _isAddLine ? 
-            new Polyline([mousePos, mousePos], Color.Crimson) : 
+            new BezierCurve([mousePos, mousePos], Color.Crimson) : 
             new Pentagon(Color.Crimson);
         var newFrame = new Frame(mousePos, newShape); 
         FramesList.Push(newFrame);

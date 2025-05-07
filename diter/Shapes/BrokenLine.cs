@@ -45,12 +45,22 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
             var startPoint = _verticesList[i]; 
             var endPointIndex = isClosed ? (i + 1) % verticesListCount : i + 1;
             var endPoint = _verticesList[endPointIndex];
-            var line = isEditable ?
-                new EditLine(startPoint, endPoint, borderColor) :
-                new Line(startPoint, endPoint, borderColor);
-            
+            var line = GetLine(startPoint, endPoint);
             _linesList.Add(line);
         }
+    }
+
+    private Line GetLine(Point startPoint, Point endPoint)
+    {
+        if (isEditable && isClosed)
+        {
+            return new EditLine(startPoint, endPoint, borderColor);
+        }
+        if (isEditable && !isClosed)
+        {
+            return new EditLine(startPoint, endPoint, borderColor, endPoint);
+        }
+        return new Line(startPoint, endPoint, borderColor);
     }
 
     public int GetMouseDownMarkerIndex(Point mousePos)

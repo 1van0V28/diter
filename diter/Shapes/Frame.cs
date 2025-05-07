@@ -8,6 +8,8 @@ public class Frame(Point start, Shape shape)
     private bool _isDragging;
     private bool _isAddingNewCorner;
     private double _radiusCircumCircle;
+    private double _angleRadians;
+    private double _angleRadiansStart;
     private int? _resizeMarkerIndex;
     private Point? _mouseStartPos;
     private Point _center;
@@ -67,7 +69,7 @@ public class Frame(Point start, Shape shape)
             Math.Pow(cornersPointsList[3].Y - cornersPointsList[0].Y, 2)
         ); 
         _radiusCircumCircle = Math.Sqrt(Math.Pow(width / 2, 2) + Math.Pow(height / 2, 2));
-        _frameRotateLever = new BrokenLine([_center, new Point(_center.X, _center.Y - (int)_radiusCircumCircle)], Color.Black, true);
+        _frameRotateLever = new BrokenLine([_center, new Point(_center.X, _center.Y - (int)_radiusCircumCircle - 15)], Color.Black, true);
     }
         
     public bool GetIsMouseDown(Point mousePos)
@@ -131,6 +133,9 @@ public class Frame(Point start, Shape shape)
             case 3: ResizeSide(mousePos, 3, 0); 
                 break;
         }
+        SetCenterPoint();
+        SetFrameRotateLever();
+        _frameRotateLever.Rotate(_center, _angleRadians);
     }
     
     private void ResizeSide(Point mousePos, int firstPointIndex, int secondPointIndex)
@@ -200,7 +205,7 @@ public class Frame(Point start, Shape shape)
         var cornersPointsList = cornersPointsArray.ToList();
         
         shape.Resize(_originalVerticesList, cornersPointsList, firstPointIndex, secondPointIndex);
-        _frameRotateLever.Resize(_originalVerticesList, cornersPointsList, firstPointIndex, secondPointIndex);
+        // _frameRotateLever.Resize(_originalVerticesList, cornersPointsList, firstPointIndex, secondPointIndex);
         _frameBorder = new BrokenLine(cornersPointsList, Color.Black, true, true);
     }
     
@@ -220,7 +225,9 @@ public class Frame(Point start, Shape shape)
 
         shape.Rotate(_center, angleRadians);
         _frameRotateLever.Rotate(_center, angleRadians);
+        _frameRotateLever.Rotate(_center, angleRadians);
         _frameBorder.Rotate(_center, angleRadians);
+        _angleRadians = _angleRadiansStart + angleRadians;
     }
     
     private void DragFrame(Point mousePos)
@@ -231,6 +238,7 @@ public class Frame(Point start, Shape shape)
         var deltaY = mousePos.Y - _mouseStartPos.Value.Y;
         
         shape.Drag(deltaX, deltaY);
+        _frameRotateLever.Drag(deltaX, deltaY);
         _frameBorder.Drag(deltaX, deltaY);
         _frameRotateLever.Drag(deltaX, deltaY);
     }
@@ -325,6 +333,7 @@ public class Frame(Point start, Shape shape)
     public void StartRotate(Point mousePos)
     { 
         _isRotating = true;
+        _angleRadiansStart = _angleRadians;
         _mouseStartPos = mousePos; 
     }
     

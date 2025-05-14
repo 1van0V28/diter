@@ -4,13 +4,13 @@ namespace diter;
 
 public class DrawingController
 {
-    private bool _isAddLine = false;
+    private bool _isAddLine;
     private bool _isEditLine;
     private Frame? _editFrame;
     public Stack<Frame> FramesList { get; } = [];
     private bool _isMouseDown;
     
-    public void MouseDownAction(MouseEventArgs e)
+    public void MouseDownAction(MouseEventArgs e, Color currentColor, Type shapeType)
     {
         if (!_isEditLine) // !!! нужно настроить выбор логики обработки событий мыши в зависимости от вида фигуры
         {
@@ -48,12 +48,12 @@ public class DrawingController
                     } 
                     if (frame.GetIsMouseDown(e.Location)) 
                     { 
-                        StartDragFrame(frame, e.Location); 
+                        StartDragFrame(frame, e.Location, currentColor); 
                         return;
                     }
                 }
             }
-            StartAddFrame(e.Location); // добавляем новую фигуру, если клик не по фигуре
+            StartAddFrame(e.Location, currentColor, shapeType); // добавляем новую фигуру, если клик не по фигуре
         }
         else if (e.Button == MouseButtons.Right)
         {
@@ -104,25 +104,65 @@ public class DrawingController
         _isMouseDown = true;
     }
     
-    private void StartDragFrame(Frame frame, Point mousePos) 
+    private void StartDragFrame(Frame frame, Point mousePos, Color currentColor) 
     { 
         _editFrame = frame; 
         _editFrame.StartDrag(mousePos);
-        _editFrame.FillShape(Color.Aquamarine);
+        _editFrame.FillShape(currentColor);
         _isMouseDown = true; 
     }
+
+    private Shape GetShape(Point mousePos, Color currentColor, Type shapeType)
+    {
+        if (shapeType == typeof(Polyline))
+        {
+            return new Polyline([mousePos, mousePos], currentColor);
+        } 
+        if (shapeType == typeof(BezierCurve))
+        {
+            return new BezierCurve([mousePos, mousePos], currentColor);
+        }
+        if (shapeType == typeof(Ellipse))
+        {
+            return new Ellipse(currentColor);
+        }
+        if (shapeType == typeof(Rect))
+        {
+            return new Rect(currentColor);
+        }
+        if (shapeType == typeof(Triangle))
+        {
+            return new Triangle(currentColor);
+        }
+        if (shapeType == typeof(Pentagon))
+        {
+            return new Pentagon(currentColor);
+        }
+        return new Trapezoid(currentColor);
+    }
+
+    private void SetIsAddLine(Type shapeType)
+    {
+        if (shapeType == typeof(Polyline) || shapeType == typeof(BezierCurve))
+        {
+            _isAddLine = true;
+        }
+        else
+        {
+            _isAddLine = false;
+        }
+    }
     
-    private void StartAddFrame(Point mousePos)
+    private void StartAddFrame(Point mousePos, Color currentColor, Type shapeType)
     {
         _editFrame?.StopEdit();
-        Shape newShape = _isAddLine ? 
-            new BezierCurve([mousePos, mousePos], Color.Crimson) : 
-            new Pentagon(Color.Crimson);
+        var newShape = GetShape(mousePos, currentColor, shapeType);
         var newFrame = new Frame(mousePos, newShape); 
         FramesList.Push(newFrame);
         _editFrame = newFrame;
         _editFrame.StartEdit();
 
+        SetIsAddLine(shapeType);
         if (_isAddLine)
         {
             _editFrame.StartAddNewCorner();

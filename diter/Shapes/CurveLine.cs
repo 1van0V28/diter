@@ -1,17 +1,9 @@
 namespace diter.Shapes;
 
-public class CurveLine(Point start, Point end, Color color, List<Point> originalVerticesList): Line(start, end, color)
+public static class CurveLine
+// возможно нет смысла наследоваться от Line, ведь данный класс можно использовать только для расчётов точек
 {
-    private List<Line> _linesList = [];
-    public override void Draw(Graphics g)
-    {
-        foreach (var line in _linesList)
-        {
-            line.Draw(g);
-        }
-    }
-    
-    private Point Lerp(Point a, Point b, double t)
+    private static Point Lerp(Point a, Point b, double t)
     {
         return new Point(
             (int)((1 - t) * a.X + t * b.X),
@@ -19,7 +11,7 @@ public class CurveLine(Point start, Point end, Color color, List<Point> original
         );
     }
 
-    private Point GetPoint(double t) // алгоритм де Кастельжо
+    private static Point GetPoint(List<Point> originalVerticesList, double t) // алгоритм де Кастельжо
     {
         Point[] verticesList = [..originalVerticesList];
         var n = originalVerticesList.Count - 1;
@@ -35,14 +27,14 @@ public class CurveLine(Point start, Point end, Color color, List<Point> original
         return verticesList[0]; // Финальная точка — B(t)
     }
 
-    protected override List<Point> GetPixelsList()
+    public static List<Point> GetPixelsList(List<Point> originalVerticesList)
     {
-        const int steps = 100;
+        const int steps = 1000;
         var pixelsList = new List<Point>();
         for (var i = 0; i <= steps; i++)
         {
             var t = i / (double)steps;
-            pixelsList.Add(GetPoint(t));
+            pixelsList.Add(GetPoint(originalVerticesList, t));
         }
         return pixelsList;
     }

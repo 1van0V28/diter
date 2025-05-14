@@ -4,7 +4,7 @@ namespace diter;
 
 public class DrawingController
 {
-    private bool _isAddLine = true;
+    private bool _isAddLine = false;
     private bool _isEditLine;
     private Frame? _editFrame;
     public Stack<Frame> FramesList { get; } = [];

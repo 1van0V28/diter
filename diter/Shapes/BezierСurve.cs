@@ -1,46 +1,35 @@
 namespace diter.Shapes;
 
 public class BezierCurve(List<Point> originalVerticesList, Color borderColor): Polyline(originalVerticesList, borderColor)
+// план-капкан
+// переносим вычисления точек кривой в отдельный класс
+// используем его, чтобы вычислять точки для ломаной в BezierCurve и для ломаной в Elipse (объединение нескольких секторов)
 {
     public override void SetBordersLines(Point mousePos)
     {
-        originalVerticesList[^1] = mousePos;
-        BordersLines = new BrokenLine(GetPixelsList(), borderColor);
-    }
-    
-    private Point Lerp(Point a, Point b, double t)
-    {
-        return new Point(
-            (int)((1 - t) * a.X + t * b.X),
-            (int)((1 - t) * a.Y + t * b.Y)
-        );
-    }
-
-    private Point GetPoint(double t) // алгоритм де Кастельжо
-    {
-        Point[] verticesList = [..originalVerticesList];
-        var n = originalVerticesList.Count - 1;
-        
-        for (var r = 1; r <= n; r++)
+        if (originalVerticesList.Count <= 2)
         {
-            for (var i = 0; i < n - r + 1; i++)
-            {
-                verticesList[i] = Lerp(verticesList[i], verticesList[i + 1], t);
-            }
+            originalVerticesList[^1] = mousePos;
+        }
+        else
+        {
+            originalVerticesList[^2] = mousePos;
         }
 
-        return verticesList[0]; // Финальная точка — B(t)
+        var bezierCurvePoints = CurveLine.GetPixelsList(originalVerticesList);
+        BordersLines = new BrokenLine(bezierCurvePoints, borderColor);
+        // сделать отдельную кривую линию, которую можно использовать для расчётов точек
     }
 
-    private List<Point> GetPixelsList()
+    public override void AddNewCorner(Point mousePos)
     {
-        const int steps = 10000;
-        var pixelsList = new List<Point>();
-        for (var i = 0; i <= steps; i++)
+        if (originalVerticesList.Count <= 2)
         {
-            var t = i / (double)steps;
-            pixelsList.Add(GetPoint(t));
+            base.AddNewCorner(mousePos);
         }
-        return pixelsList;
+        else
+        {
+            originalVerticesList.Insert(originalVerticesList.Count - 1, mousePos);
+        }
     }
 }

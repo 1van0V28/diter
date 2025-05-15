@@ -205,7 +205,6 @@ public class Frame(Point start, Shape shape)
         var cornersPointsList = cornersPointsArray.ToList();
         
         shape.Resize(_originalVerticesList, cornersPointsList, firstPointIndex, secondPointIndex);
-        // _frameRotateLever.Resize(_originalVerticesList, cornersPointsList, firstPointIndex, secondPointIndex);
         _frameBorder = new BrokenLine(cornersPointsList, Color.Black, true, true);
     }
     

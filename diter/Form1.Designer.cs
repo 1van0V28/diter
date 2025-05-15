@@ -33,10 +33,8 @@ sealed partial class Form1
         tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
         groupBox1 = new System.Windows.Forms.GroupBox();
         flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-        button1 = new System.Windows.Forms.Button();
-        button2 = new System.Windows.Forms.Button();
-        button3 = new System.Windows.Forms.Button();
-        button4 = new System.Windows.Forms.Button();
+        btnFill = new System.Windows.Forms.Button();
+        btnDelete = new System.Windows.Forms.Button();
         groupBox2 = new System.Windows.Forms.GroupBox();
         flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
         btnPolyline = new System.Windows.Forms.Button();
@@ -94,7 +92,7 @@ sealed partial class Form1
         SplitContainer1.Panel2.MouseMove += DrawPanel_MouseMove;
         SplitContainer1.Panel2.MouseUp += DrawPanel_MouseUp;
         SplitContainer1.Size = new System.Drawing.Size(800, 450);
-        SplitContainer1.SplitterDistance = 160;
+        SplitContainer1.SplitterDistance = 147;
         SplitContainer1.TabIndex = 0;
         SplitContainer1.Text = "splitContainer1";
         // 
@@ -112,7 +110,7 @@ sealed partial class Form1
         tableLayoutPanel1.Name = "tableLayoutPanel1";
         tableLayoutPanel1.RowCount = 1;
         tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-        tableLayoutPanel1.Size = new System.Drawing.Size(800, 160);
+        tableLayoutPanel1.Size = new System.Drawing.Size(800, 147);
         tableLayoutPanel1.TabIndex = 0;
         // 
         // groupBox1
@@ -122,66 +120,44 @@ sealed partial class Form1
         groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
         groupBox1.Location = new System.Drawing.Point(3, 3);
         groupBox1.Name = "groupBox1";
-        groupBox1.Size = new System.Drawing.Size(194, 154);
+        groupBox1.Size = new System.Drawing.Size(194, 141);
         groupBox1.TabIndex = 0;
         groupBox1.TabStop = false;
         groupBox1.Text = "Инструменты";
         // 
         // flowLayoutPanel1
         // 
-        flowLayoutPanel1.Controls.Add(button1);
-        flowLayoutPanel1.Controls.Add(button2);
-        flowLayoutPanel1.Controls.Add(button3);
-        flowLayoutPanel1.Controls.Add(button4);
+        flowLayoutPanel1.Controls.Add(btnFill);
+        flowLayoutPanel1.Controls.Add(btnDelete);
         flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
         flowLayoutPanel1.Location = new System.Drawing.Point(3, 23);
         flowLayoutPanel1.Name = "flowLayoutPanel1";
-        flowLayoutPanel1.Size = new System.Drawing.Size(188, 128);
+        flowLayoutPanel1.Size = new System.Drawing.Size(188, 115);
         flowLayoutPanel1.TabIndex = 0;
         // 
-        // button1
+        // btnFill
         // 
-        button1.Cursor = System.Windows.Forms.Cursors.Hand;
-        button1.Location = new System.Drawing.Point(3, 3);
-        button1.Name = "button1";
-        button1.Size = new System.Drawing.Size(85, 30);
-        button1.TabIndex = 0;
-        button1.Text = "Линия";
-        button1.UseVisualStyleBackColor = true;
+        btnFill.AutoSize = true;
+        btnFill.Cursor = System.Windows.Forms.Cursors.Hand;
+        btnFill.Location = new System.Drawing.Point(3, 3);
+        btnFill.Name = "btnFill";
+        btnFill.Size = new System.Drawing.Size(85, 30);
+        btnFill.TabIndex = 1;
+        btnFill.Text = "Заливка";
+        btnFill.UseVisualStyleBackColor = true;
+        btnFill.Click += ControlPanel_ToolButtonClick;
         // 
-        // button2
+        // btnDelete
         // 
-        button2.AutoSize = true;
-        button2.Cursor = System.Windows.Forms.Cursors.Hand;
-        button2.Location = new System.Drawing.Point(94, 3);
-        button2.Name = "button2";
-        button2.Size = new System.Drawing.Size(85, 30);
-        button2.TabIndex = 1;
-        button2.Text = "Заливка";
-        button2.UseVisualStyleBackColor = true;
-        button2.Click += button2_Click;
-        // 
-        // button3
-        // 
-        button3.AutoSize = true;
-        button3.Cursor = System.Windows.Forms.Cursors.Hand;
-        button3.Location = new System.Drawing.Point(3, 39);
-        button3.Name = "button3";
-        button3.Size = new System.Drawing.Size(85, 30);
-        button3.TabIndex = 2;
-        button3.Text = "Ластик";
-        button3.UseVisualStyleBackColor = true;
-        // 
-        // button4
-        // 
-        button4.AutoSize = true;
-        button4.Cursor = System.Windows.Forms.Cursors.Hand;
-        button4.Location = new System.Drawing.Point(94, 39);
-        button4.Name = "button4";
-        button4.Size = new System.Drawing.Size(85, 30);
-        button4.TabIndex = 3;
-        button4.Text = "Удалить";
-        button4.UseVisualStyleBackColor = true;
+        btnDelete.AutoSize = true;
+        btnDelete.Cursor = System.Windows.Forms.Cursors.Hand;
+        btnDelete.Location = new System.Drawing.Point(94, 3);
+        btnDelete.Name = "btnDelete";
+        btnDelete.Size = new System.Drawing.Size(85, 30);
+        btnDelete.TabIndex = 3;
+        btnDelete.Text = "Удалить";
+        btnDelete.UseVisualStyleBackColor = true;
+        btnDelete.Click += ControlPanel_ToolButtonClick;
         // 
         // groupBox2
         // 
@@ -189,7 +165,7 @@ sealed partial class Form1
         groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
         groupBox2.Location = new System.Drawing.Point(203, 3);
         groupBox2.Name = "groupBox2";
-        groupBox2.Size = new System.Drawing.Size(274, 154);
+        groupBox2.Size = new System.Drawing.Size(274, 141);
         groupBox2.TabIndex = 1;
         groupBox2.TabStop = false;
         groupBox2.Text = "Фигуры";
@@ -207,11 +183,12 @@ sealed partial class Form1
         flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
         flowLayoutPanel2.Location = new System.Drawing.Point(3, 23);
         flowLayoutPanel2.Name = "flowLayoutPanel2";
-        flowLayoutPanel2.Size = new System.Drawing.Size(268, 128);
+        flowLayoutPanel2.Size = new System.Drawing.Size(268, 115);
         flowLayoutPanel2.TabIndex = 0;
         // 
         // btnPolyline
         // 
+        btnPolyline.AutoSize = true;
         btnPolyline.Location = new System.Drawing.Point(3, 3);
         btnPolyline.Name = "btnPolyline";
         btnPolyline.Size = new System.Drawing.Size(82, 30);
@@ -222,6 +199,7 @@ sealed partial class Form1
         // 
         // btnBezierCurve
         // 
+        btnBezierCurve.AutoSize = true;
         btnBezierCurve.Location = new System.Drawing.Point(91, 3);
         btnBezierCurve.Name = "btnBezierCurve";
         btnBezierCurve.Size = new System.Drawing.Size(79, 30);
@@ -232,9 +210,10 @@ sealed partial class Form1
         // 
         // btnEllipse
         // 
+        btnEllipse.AutoSize = true;
         btnEllipse.Location = new System.Drawing.Point(176, 3);
         btnEllipse.Name = "btnEllipse";
-        btnEllipse.Size = new System.Drawing.Size(75, 23);
+        btnEllipse.Size = new System.Drawing.Size(75, 30);
         btnEllipse.TabIndex = 4;
         btnEllipse.Text = "Эллипс";
         btnEllipse.UseVisualStyleBackColor = true;
@@ -242,9 +221,10 @@ sealed partial class Form1
         // 
         // btnRect
         // 
+        btnRect.AutoSize = true;
         btnRect.Location = new System.Drawing.Point(3, 39);
         btnRect.Name = "btnRect";
-        btnRect.Size = new System.Drawing.Size(75, 23);
+        btnRect.Size = new System.Drawing.Size(130, 30);
         btnRect.TabIndex = 3;
         btnRect.Text = "Прямоугольник";
         btnRect.UseVisualStyleBackColor = true;
@@ -252,9 +232,10 @@ sealed partial class Form1
         // 
         // btnTriangle
         // 
-        btnTriangle.Location = new System.Drawing.Point(84, 39);
+        btnTriangle.AutoSize = true;
+        btnTriangle.Location = new System.Drawing.Point(139, 39);
         btnTriangle.Name = "btnTriangle";
-        btnTriangle.Size = new System.Drawing.Size(75, 23);
+        btnTriangle.Size = new System.Drawing.Size(107, 30);
         btnTriangle.TabIndex = 2;
         btnTriangle.Text = "Треугольник";
         btnTriangle.UseVisualStyleBackColor = true;
@@ -262,9 +243,10 @@ sealed partial class Form1
         // 
         // btnPentagon
         // 
-        btnPentagon.Location = new System.Drawing.Point(165, 39);
+        btnPentagon.AutoSize = true;
+        btnPentagon.Location = new System.Drawing.Point(3, 75);
         btnPentagon.Name = "btnPentagon";
-        btnPentagon.Size = new System.Drawing.Size(75, 23);
+        btnPentagon.Size = new System.Drawing.Size(116, 30);
         btnPentagon.TabIndex = 1;
         btnPentagon.Text = "Пятиугольник";
         btnPentagon.UseVisualStyleBackColor = true;
@@ -272,12 +254,14 @@ sealed partial class Form1
         // 
         // btnTrapezoid
         // 
-        btnTrapezoid.Location = new System.Drawing.Point(3, 68);
+        btnTrapezoid.AutoSize = true;
+        btnTrapezoid.Location = new System.Drawing.Point(125, 75);
         btnTrapezoid.Name = "btnTrapezoid";
-        btnTrapezoid.Size = new System.Drawing.Size(75, 23);
+        btnTrapezoid.Size = new System.Drawing.Size(87, 30);
         btnTrapezoid.TabIndex = 0;
         btnTrapezoid.Text = "Трапеция";
         btnTrapezoid.UseVisualStyleBackColor = true;
+        btnTrapezoid.Click += ControlPanel_ShapeButtonClick;
         // 
         // groupBox3
         // 
@@ -285,7 +269,7 @@ sealed partial class Form1
         groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
         groupBox3.Location = new System.Drawing.Point(483, 3);
         groupBox3.Name = "groupBox3";
-        groupBox3.Size = new System.Drawing.Size(314, 154);
+        groupBox3.Size = new System.Drawing.Size(314, 141);
         groupBox3.TabIndex = 2;
         groupBox3.TabStop = false;
         groupBox3.Text = "Цвета";
@@ -293,8 +277,8 @@ sealed partial class Form1
         // tableLayoutPanel2
         // 
         tableLayoutPanel2.ColumnCount = 2;
-        tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.33766F));
-        tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.66234F));
+        tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.246754F));
+        tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.75325F));
         tableLayoutPanel2.Controls.Add(flowLayoutPanel3, 0, 0);
         tableLayoutPanel2.Controls.Add(flowLayoutPanel4, 1, 0);
         tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -303,7 +287,7 @@ sealed partial class Form1
         tableLayoutPanel2.RowCount = 1;
         tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
         tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-        tableLayoutPanel2.Size = new System.Drawing.Size(308, 128);
+        tableLayoutPanel2.Size = new System.Drawing.Size(308, 115);
         tableLayoutPanel2.TabIndex = 0;
         // 
         // flowLayoutPanel3
@@ -315,23 +299,25 @@ sealed partial class Form1
         flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
         flowLayoutPanel3.Location = new System.Drawing.Point(3, 3);
         flowLayoutPanel3.Name = "flowLayoutPanel3";
-        flowLayoutPanel3.Size = new System.Drawing.Size(109, 122);
+        flowLayoutPanel3.Size = new System.Drawing.Size(81, 109);
         flowLayoutPanel3.TabIndex = 0;
         flowLayoutPanel3.WrapContents = false;
         // 
         // pnlColorView
         // 
+        pnlColorView.Anchor = System.Windows.Forms.AnchorStyles.Top;
         pnlColorView.BackColor = System.Drawing.Color.White;
-        pnlColorView.Location = new System.Drawing.Point(3, 3);
+        pnlColorView.Location = new System.Drawing.Point(15, 3);
         pnlColorView.Name = "pnlColorView";
         pnlColorView.Size = new System.Drawing.Size(50, 50);
         pnlColorView.TabIndex = 0;
         // 
         // btnOther
         // 
+        btnOther.AutoSize = true;
         btnOther.Location = new System.Drawing.Point(3, 59);
         btnOther.Name = "btnOther";
-        btnOther.Size = new System.Drawing.Size(75, 23);
+        btnOther.Size = new System.Drawing.Size(75, 30);
         btnOther.TabIndex = 1;
         btnOther.Text = "Другой";
         btnOther.UseVisualStyleBackColor = true;
@@ -350,9 +336,9 @@ sealed partial class Form1
         flowLayoutPanel4.Controls.Add(btnBlue);
         flowLayoutPanel4.Controls.Add(btnPurple);
         flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-        flowLayoutPanel4.Location = new System.Drawing.Point(118, 3);
+        flowLayoutPanel4.Location = new System.Drawing.Point(90, 3);
         flowLayoutPanel4.Name = "flowLayoutPanel4";
-        flowLayoutPanel4.Size = new System.Drawing.Size(187, 122);
+        flowLayoutPanel4.Size = new System.Drawing.Size(215, 109);
         flowLayoutPanel4.TabIndex = 1;
         // 
         // btnBlack
@@ -472,9 +458,11 @@ sealed partial class Form1
         flowLayoutPanel1.PerformLayout();
         groupBox2.ResumeLayout(false);
         flowLayoutPanel2.ResumeLayout(false);
+        flowLayoutPanel2.PerformLayout();
         groupBox3.ResumeLayout(false);
         tableLayoutPanel2.ResumeLayout(false);
         flowLayoutPanel3.ResumeLayout(false);
+        flowLayoutPanel3.PerformLayout();
         flowLayoutPanel4.ResumeLayout(false);
         ResumeLayout(false);
     }
@@ -510,10 +498,8 @@ sealed partial class Form1
 
     private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
 
-    private System.Windows.Forms.Button button1;
-    private System.Windows.Forms.Button button2;
-    private System.Windows.Forms.Button button3;
-    private System.Windows.Forms.Button button4;
+    private System.Windows.Forms.Button btnFill;
+    private System.Windows.Forms.Button btnDelete;
 
     private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
 

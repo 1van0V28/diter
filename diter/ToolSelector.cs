@@ -1,15 +1,23 @@
 using diter.Shapes;
+using diter.Tools;
 
 namespace diter;
 
 public class ToolSelector
 {
+    public Type ToolType { get; private set; } = typeof(ShapeTool);
     public Type ShapeType { get; private set; } = typeof(Polyline);
-    public Color Color { get; private set; } = Color.Black;
+    public Color CurrentColor { get; private set; } = Color.Black;
 
     public void ToolButtonClick(object sender, EventArgs e)
     {
-        throw new NotImplementedException("ToolButtonClick");
+        var toolButton = (Button)sender;
+        ToolType = toolButton.Name switch
+        {
+            "btnDelete" => typeof(DeleteTool),
+            "btnFill" => typeof(FillTool),
+            _ => ToolType
+        };
     }
 
     public void ShapeButtonClick(object sender, EventArgs e)
@@ -33,12 +41,12 @@ public class ToolSelector
         using (var colorDialog = new ColorDialog())
         {
             colorDialog.FullOpen = true;
-            colorDialog.Color = Color;
+            colorDialog.Color = CurrentColor;
 
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
-                Color = colorDialog.Color;
-                pnlColorView.BackColor = Color;
+                CurrentColor = colorDialog.Color;
+                pnlColorView.BackColor = CurrentColor;
             }
         }
     }
@@ -46,7 +54,7 @@ public class ToolSelector
     public void ColorButtonClick(object sender, Panel pnlColorView)
     {
         var colorButton = (Button)sender;
-        Color = colorButton.BackColor;
-        pnlColorView.BackColor = Color;
+        CurrentColor = colorButton.BackColor;
+        pnlColorView.BackColor = CurrentColor;
     }
 }

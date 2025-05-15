@@ -18,7 +18,7 @@ public sealed partial class Form1 : Form
     private void DrawPanel_Paint(object sender, PaintEventArgs e)
     {
         e.Graphics.Clear(SplitContainer1.Panel2.BackColor);
-        foreach (var editRect in _drawingController.FramesList)
+        foreach (var editRect in _drawingController.GetFramesList())
         {
             editRect.Draw(e.Graphics);
         }
@@ -26,7 +26,7 @@ public sealed partial class Form1 : Form
 
     private void DrawPanel_MouseDown(object sender, MouseEventArgs e)
     {
-        _drawingController.MouseDownAction(e, _toolSelector.Color, _toolSelector.ShapeType);
+        _drawingController.MouseDownAction(e);
         SplitContainer1.Panel2.Invalidate();
     }
 
@@ -38,84 +38,34 @@ public sealed partial class Form1 : Form
 
     private void DrawPanel_MouseUp(object sender, MouseEventArgs e)
     {
-        _drawingController.MouseUpAction();
+        _drawingController.MouseUpAction(e);
         SplitContainer1.Panel2.Invalidate();
+    }
+
+    private void ControlPanel_ToolButtonClick(object sender, EventArgs e)
+    {
+        _toolSelector.ToolButtonClick(sender, e);
+        _drawingController.SetToolType(_toolSelector.ToolType);
     }
 
     private void ControlPanel_ShapeButtonClick(object sender, EventArgs e)
     {
         _toolSelector.ShapeButtonClick(sender, e);
+        _drawingController.SetShapeType(_toolSelector.ShapeType);
+        _drawingController.SetToolType(_toolSelector.ShapeType);
     }
 
     private void ControlPanel_ColorOtherButtonClick(object sender, EventArgs e)
     {
-        _toolSelector.ColorOtherButtonClick(pnlColorView); 
+        _toolSelector.ColorOtherButtonClick(pnlColorView);
+        _drawingController.SetCurrentColor(_toolSelector.CurrentColor);
         SplitContainer1.Panel1.Invalidate();
     }
     
     private void ControlPanel_ColorButtonClick(object sender, EventArgs e)
     {
         _toolSelector.ColorButtonClick(sender, pnlColorView);
+        _drawingController.SetCurrentColor(_toolSelector.CurrentColor);
         SplitContainer1.Panel1.Invalidate();
-    }
-
-    private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void button2_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void button10_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void button17_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void button14_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void button20_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void button21_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void button18_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void btnBlack_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void btnPolyline_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void btnOther_Click(object sender, EventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    private void tableLayoutPanel3_Paint(object sender, PaintEventArgs e)
-    {
-        throw new System.NotImplementedException();
     }
 }

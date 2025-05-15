@@ -1,9 +1,6 @@
 namespace diter.Shapes;
 
 public class BezierCurve(List<Point> originalVerticesList, Color borderColor): Polyline(originalVerticesList, borderColor)
-// план-капкан
-// переносим вычисления точек кривой в отдельный класс
-// используем его, чтобы вычислять точки для ломаной в BezierCurve и для ломаной в Elipse (объединение нескольких секторов)
 {
     public override void SetBordersLines(Point mousePos)
     {
@@ -18,7 +15,6 @@ public class BezierCurve(List<Point> originalVerticesList, Color borderColor): P
 
         var bezierCurvePoints = CurveLine.GetPixelsList(originalVerticesList);
         BordersLines = new BrokenLine(bezierCurvePoints, borderColor);
-        // сделать отдельную кривую линию, которую можно использовать для расчётов точек
     }
 
     public override void AddNewCorner(Point mousePos)

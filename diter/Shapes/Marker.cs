@@ -1,6 +1,6 @@
 namespace diter.Shapes;
 
-public class Marker(Point pos) // в перспективе можно рассматривать как наследник shape
+public class Marker(Point pos)
 {
     private const int Width = 5;
     private readonly BrokenLine _bordersLines = new ([

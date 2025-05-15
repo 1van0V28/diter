@@ -1,7 +1,6 @@
 namespace diter.Shapes;
 
 public static class CurveLine
-// возможно нет смысла наследоваться от Line, ведь данный класс можно использовать только для расчётов точек
 {
     private static Point Lerp(Point a, Point b, double t)
     {

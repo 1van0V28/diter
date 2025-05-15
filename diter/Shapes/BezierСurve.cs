@@ -17,15 +17,15 @@ public class BezierCurve(List<Point> originalVerticesList, Color borderColor): P
         BordersLines = new BrokenLine(bezierCurvePoints, borderColor);
     }
 
-    public override void AddNewCorner(Point mousePos)
+    public override void AddNewCorner(MouseEventArgs e)
     {
         if (originalVerticesList.Count <= 2)
         {
-            base.AddNewCorner(mousePos);
+            base.AddNewCorner(e);
         }
         else
         {
-            originalVerticesList.Insert(originalVerticesList.Count - 1, mousePos);
+            originalVerticesList.Insert(originalVerticesList.Count - 1, e.Location);
         }
     }
 }

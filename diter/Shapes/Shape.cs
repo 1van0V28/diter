@@ -54,7 +54,7 @@ public class Shape(Color color)
         throw new NotImplementedException("This shape is parametric");
     }
 
-    public virtual void AddNewCorner(Point mousePos)
+    public virtual void AddNewCorner(MouseEventArgs e)
     {
         throw new NotImplementedException("This shape is parametric");
     }

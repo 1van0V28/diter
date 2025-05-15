@@ -347,10 +347,10 @@ public class Frame(Point start, Shape shape)
         _isAddingNewCorner = true;
     }
 
-    public void AddNewCorner(Point mousePos)
+    public void AddNewCorner(MouseEventArgs e)
     {
         IsEdit = true;
-        shape.AddNewCorner(mousePos);
+        shape.AddNewCorner(e);
     }
 
     public void FillShape(Color color)

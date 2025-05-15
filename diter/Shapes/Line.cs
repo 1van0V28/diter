@@ -2,7 +2,7 @@ namespace diter.Shapes;
 
 public class Line(Point start, Point end, Color color, bool isDashed = false)
 {
-    public List<Point> PixelsList => GetPixelsList();
+    protected List<Point> PixelsList => GetPixelsList();
 
     public virtual void Draw(Graphics g)
     {

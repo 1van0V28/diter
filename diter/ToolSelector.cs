@@ -9,7 +9,7 @@ public class ToolSelector
     public Type ShapeType { get; private set; } = typeof(Polyline);
     public Color CurrentColor { get; private set; } = Color.Black;
 
-    public void ToolButtonClick(object sender, EventArgs e)
+    public void ToolButtonClick(object sender)
     {
         var toolButton = (Button)sender;
         ToolType = toolButton.Name switch
@@ -20,7 +20,7 @@ public class ToolSelector
         };
     }
 
-    public void ShapeButtonClick(object sender, EventArgs e)
+    public void ShapeButtonClick(object sender)
     {
         var shapeButton = (Button)sender;
         ShapeType = shapeButton.Name switch

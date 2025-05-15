@@ -5,12 +5,12 @@ namespace diter.Tools;
 public class ToolContext
 {
     public Type ShapeType { get; private set; } = typeof(Polyline);
-    public Color CurrentColor { get; private set; }
-    public bool IsAddLine { get; private set; }
+    public Color CurrentColor { get; private set; } = Color.Black;
+    private bool _isAddLine;
     public bool IsEditLine { get; private set; }
     public bool IsMouseDown { get; private set; }
     public Frame? EditFrame { get; private set; }
-    public List<Frame> FramesList = [];
+    public readonly List<Frame> FramesList = [];
 
     private void SetFrameToTop(Frame editFrame)
     {
@@ -44,11 +44,10 @@ public class ToolContext
         IsMouseDown = true;
     }
     
-    public void StartDragFrame(Frame frame, Point mousePos, Color currentColor) 
+    public void StartDragFrame(Frame frame, Point mousePos) 
     { 
         EditFrame = frame; 
         EditFrame.StartDrag(mousePos);
-        // EditFrame.FillShape(currentColor);
         IsMouseDown = true; 
     }
     
@@ -85,11 +84,11 @@ public class ToolContext
     {
         if (shapeType == typeof(Polyline) || shapeType == typeof(BezierCurve))
         {
-            IsAddLine = true;
+            _isAddLine = true;
         }
         else
         {
-            IsAddLine = false;
+            _isAddLine = false;
         }
     }
     
@@ -103,7 +102,7 @@ public class ToolContext
         EditFrame.StartEdit();
 
         SetIsAddLine(shapeType);
-        if (IsAddLine)
+        if (_isAddLine)
         {
             EditFrame.StartAddNewCorner();
             IsEditLine = true;

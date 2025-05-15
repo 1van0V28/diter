@@ -306,7 +306,7 @@ sealed partial class Form1
         // pnlColorView
         // 
         pnlColorView.Anchor = System.Windows.Forms.AnchorStyles.Top;
-        pnlColorView.BackColor = System.Drawing.Color.White;
+        pnlColorView.BackColor = System.Drawing.Color.Black;
         pnlColorView.Location = new System.Drawing.Point(15, 3);
         pnlColorView.Name = "pnlColorView";
         pnlColorView.Size = new System.Drawing.Size(50, 50);

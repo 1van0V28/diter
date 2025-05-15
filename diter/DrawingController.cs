@@ -41,18 +41,17 @@ public class DrawingController
     {
         return _toolContext.FramesList;
     }
-
+    
+    public void SetShapeType(Type shapeType)
+    { 
+        _toolContext.SetShapeType(shapeType);
+    }
+    
     public void SetCurrentColor(Color currentColor)
     {
         _toolContext.SetCurrentColor(currentColor);
     }
-
-    public void SetShapeType(Type shapeType)
-    {
-        _toolContext.SetShapeType(shapeType);
-        Console.WriteLine(_toolContext.ShapeType);
-    }
-
+    
     public void SetToolType(Type toolType)
     {
         _toolType = toolType;

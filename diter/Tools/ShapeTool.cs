@@ -40,7 +40,7 @@ public class ShapeTool(ToolContext toolContext): ITool
                     } 
                     if (frame.GetIsMouseDown(e.Location)) 
                     { 
-                        StartDragFrame(frame, e.Location, toolContext.CurrentColor); 
+                        StartDragFrame(frame, e.Location); 
                         return; 
                     }
                 }
@@ -49,10 +49,11 @@ public class ShapeTool(ToolContext toolContext): ITool
         }
         else if (e.Button == MouseButtons.Right)
         {
+            AddNewCorner(e);
             toolContext.StopAddLine();
         } else 
         {
-            AddNewCorner(e.Location);
+            AddNewCorner(e);
         }
     }
 
@@ -89,9 +90,9 @@ public class ShapeTool(ToolContext toolContext): ITool
         toolContext.StartRotateFrame(frame, mousePos);
     }
 
-    private void StartDragFrame(Frame frame, Point mousePos, Color currentColor)
+    private void StartDragFrame(Frame frame, Point mousePos)
     {
-        toolContext.StartDragFrame(frame, mousePos, currentColor);
+        toolContext.StartDragFrame(frame, mousePos);
     }
 
     private void StartAddFrame(Point mousePos, Color currentColor, Type shapeType)
@@ -99,8 +100,8 @@ public class ShapeTool(ToolContext toolContext): ITool
         toolContext.StartAddFrame(mousePos, currentColor, shapeType);
     }
     
-    private void AddNewCorner(Point mousePos)
+    private void AddNewCorner(MouseEventArgs e)
     {
-        toolContext.EditFrame?.AddNewCorner(mousePos);
+        toolContext.EditFrame?.AddNewCorner(e);
     }
 }

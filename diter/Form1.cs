@@ -44,13 +44,13 @@ public sealed partial class Form1 : Form
 
     private void ControlPanel_ToolButtonClick(object sender, EventArgs e)
     {
-        _toolSelector.ToolButtonClick(sender, e);
+        _toolSelector.ToolButtonClick(sender);
         _drawingController.SetToolType(_toolSelector.ToolType);
     }
 
     private void ControlPanel_ShapeButtonClick(object sender, EventArgs e)
     {
-        _toolSelector.ShapeButtonClick(sender, e);
+        _toolSelector.ShapeButtonClick(sender);
         _drawingController.SetShapeType(_toolSelector.ShapeType);
         _drawingController.SetToolType(_toolSelector.ShapeType);
     }

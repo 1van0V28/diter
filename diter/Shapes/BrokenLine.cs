@@ -3,20 +3,21 @@ namespace diter.Shapes;
 public class BrokenLine(List<Point> originalVerticesList, Color borderColor, bool isEditable = false, bool isClosed = false)
 {
     public List<Point> OriginalVerticesList { get; private set; } = originalVerticesList;
-    protected readonly List<Point> VerticesList = [..originalVerticesList];
-    protected readonly List<Line> LinesList = [];
+    private readonly List<Point> _verticesList = [..originalVerticesList];
+    private readonly List<Line> _linesList = [];
 
     private readonly BitMask _bitMask = new ();
     private bool _isEdit = true;
     private Color _fillColor = Color.Transparent;
+
     public void Draw(Graphics g)
     {
         if (_isEdit)
         {
             UpdateLines();
-            if (VerticesList.Count != 0 && _fillColor != Color.Transparent && isClosed && !isEditable)
+            if (_verticesList.Count != 0 && _fillColor != Color.Transparent && isClosed && !isEditable)
             {
-                _bitMask.UpdateBitMask(GetEndPoints(), VerticesList);
+                _bitMask.UpdateBitMask(GetEndPoints(), _verticesList);
             }
         }
         
@@ -25,7 +26,7 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
             _bitMask.Draw(g, GetEndPoints(), _fillColor);
         }
         
-        foreach (var line in LinesList)
+        foreach (var line in _linesList)
         {
             line.Draw(g);
         }
@@ -33,20 +34,20 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
 
     public void SetOriginalVerticesList()
     {
-        OriginalVerticesList = [..VerticesList];
+        OriginalVerticesList = [.._verticesList];
     }
 
-    protected virtual void UpdateLines()
+    public void UpdateLines()
     {
-        LinesList.Clear();
-        var verticesListCount = isClosed ? VerticesList.Count : VerticesList.Count - 1;
+        _linesList.Clear();
+        var verticesListCount = isClosed ? _verticesList.Count : _verticesList.Count - 1;
         for (var i = 0; i < verticesListCount; i++) 
         { 
-            var startPoint = VerticesList[i]; 
+            var startPoint = _verticesList[i]; 
             var endPointIndex = isClosed ? (i + 1) % verticesListCount : i + 1;
-            var endPoint = VerticesList[endPointIndex];
+            var endPoint = _verticesList[endPointIndex];
             var line = GetLine(startPoint, endPoint);
-            LinesList.Add(line);
+            _linesList.Add(line);
         }
     }
 
@@ -70,9 +71,9 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
             return -1;
         }
         
-        for (var i = 0; i < LinesList.Count; i++) 
+        for (var i = 0; i < _linesList.Count; i++) 
         { 
-            var line = LinesList[i] as EditLine;
+            var line = _linesList[i] as EditLine;
             if (line!.GetIsMouseDownMarker(mousePos)) 
             { 
                 return i;
@@ -83,10 +84,10 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
     
     public Point[] GetEndPoints()
     {
-        var minX = VerticesList.Min(point => point.X);
-        var minY = VerticesList.Min(point => point.Y);
-        var maxX = VerticesList.Max(point => point.X);
-        var maxY = VerticesList.Max(point => point.Y);
+        var minX = _verticesList.Min(point => point.X);
+        var minY = _verticesList.Min(point => point.Y);
+        var maxX = _verticesList.Max(point => point.X);
+        var maxY = _verticesList.Max(point => point.Y);
         
         return [new Point(minX, minY), new Point(maxX, maxY)];
     }
@@ -146,7 +147,7 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
         double maxY = verticesList.Max(p => p.Y);
 
         // Масштабируем вершины ломаной
-        VerticesList.Clear();
+        _verticesList.Clear();
         foreach (var point in OriginalVerticesList)
         {
             // Смещение и преобразование в локальную систему
@@ -172,16 +173,16 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
             newY = Math.Max(minY, Math.Min(maxY, newY));
 
             // Добавляем вершину
-            VerticesList.Add(new Point((int)Math.Round(newX), (int)Math.Round(newY)));
+            _verticesList.Add(new Point((int)Math.Round(newX), (int)Math.Round(newY)));
         }
         UpdateLines();
     }
 
     public void Rotate(Point center, double angleRadians)
     {
-        for (var i = 0; i < VerticesList.Count; i++)
+        for (var i = 0; i < _verticesList.Count; i++)
         {
-            VerticesList[i] = GetRotatedPoint(OriginalVerticesList[i], center, angleRadians);
+            _verticesList[i] = GetRotatedPoint(OriginalVerticesList[i], center, angleRadians);
         }
         UpdateLines();
     }
@@ -204,9 +205,9 @@ public class BrokenLine(List<Point> originalVerticesList, Color borderColor, boo
 
     public void Drag(int deltaX, int deltaY)
     {
-        for (var i = 0; i < VerticesList.Count; i++)
+        for (var i = 0; i < _verticesList.Count; i++)
         {
-            VerticesList[i] = new Point(
+            _verticesList[i] = new Point(
                     OriginalVerticesList[i].X + deltaX,
                     OriginalVerticesList[i].Y + deltaY
                     );
